@@ -416,29 +416,33 @@ if (introPinnedEl) {
         lenis.stop();
       }
 
-      const introStageEl = introPinnedEl.querySelector(".fgyb-intro-stage");
-      if (introStageEl) {
-        introStageEl.style.display = "none";
-        introStageEl.remove();
-      }
-
-      if (realHero) {
-        realHero.style.visibility = "visible";
-        realHero.style.pointerEvents = "auto";
-      }
-      gsap.set(realLogo, { opacity: 1, filter: "blur(0px)", scale: 1, rotation: 0, y: 0, clearProps: "filter" });
-      gsap.set([realLine1, realLine2], { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, clearProps: "filter" });
-      gsap.set(realBottom, { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, clearProps: "filter" });
-      setIntroHeaderVisibility(true);
-
+      // 1. Kill ScrollTrigger & timeline FIRST so GSAP's revert cannot overwrite our final state
       if (introTl && introTl.scrollTrigger) {
         introTl.scrollTrigger.kill(true);
       }
       if (introTl) {
         introTl.kill();
       }
-      gsap.set(introPinnedEl, { clearProps: "all" });
 
+      // 2. Remove the intro stage permanently
+      const introStageEl = introPinnedEl.querySelector(".fgyb-intro-stage");
+      if (introStageEl) {
+        introStageEl.style.display = "none";
+        introStageEl.remove();
+      }
+
+      // 3. Clear all inline GSAP styles so the Real Hero stays 100% visible and interactive
+      gsap.set([introPinnedEl, realHero, realLogo, realLine1, realLine2, realBottom], {
+        clearProps: "all"
+      });
+      if (realHero) {
+        realHero.style.visibility = "visible";
+        realHero.style.opacity = "1";
+        realHero.style.pointerEvents = "auto";
+      }
+      setIntroHeaderVisibility(true);
+
+      // 4. Snap scroll to the top where the Real Hero now sits permanently
       window.scrollTo(0, 0);
       if (typeof lenis !== "undefined") {
         lenis.scrollTo(0, { immediate: true });
@@ -461,10 +465,10 @@ if (introPinnedEl) {
       pin: true,
       scrub: 1.05,
       invalidateOnRefresh: true,
-      onUpdate: (self) => {
+      onUpdate: () => {
         if (window.__fgybIntroLocked) return;
         syncIntroPhases(introTl.time());
-        if (self.progress >= 0.985) {
+        if (introTl.progress() >= 0.99) {
           completeAndLockIntro();
         }
       },
