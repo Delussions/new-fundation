@@ -271,60 +271,93 @@ fadeOutEl.forEach((element) => {
 // --------------------------------------------- //
 
 // --------------------------------------------- //
-// Hero #08 Scroll Out Animation Start
+// Hero #08 Multi-Phase Scroll Intro & Dissolve Start
 // --------------------------------------------- //
-hero07FadeOutEl = document.querySelectorAll(".hero-08-slide-out-scroll");
-hero07ScaleOutEl = document.querySelectorAll(".hero-08-scale-out-scroll"); 
-hero07FadeOutEl.forEach((element) => {
-  let hero07fadeOutTl = gsap.timeline({
+const introPinnedEl = document.querySelector(".fgyb-intro-pinned");
+if (introPinnedEl) {
+  const phase1Text = introPinnedEl.querySelector(".is-phase-1 .fgyb-intro-text");
+  const phase1Imgs = introPinnedEl.querySelectorAll(".is-phase-1 .fgyb-p-img");
+  const phase2El = introPinnedEl.querySelector(".is-phase-2");
+  const phase2Text = introPinnedEl.querySelector(".is-phase-2 .fgyb-intro-text");
+  const phase2Imgs = introPinnedEl.querySelectorAll(".is-phase-2 .fgyb-p-img");
+  const phase3El = introPinnedEl.querySelector(".is-phase-3");
+  const phase3Text = introPinnedEl.querySelector(".is-phase-3 .fgyb-intro-text");
+  const phase3Imgs = introPinnedEl.querySelectorAll(".is-phase-3 .fgyb-p-img");
+
+  const realHero = introPinnedEl.querySelector(".fgyb-real-hero");
+  const realLogo = introPinnedEl.querySelector(".fgyb-real-logo");
+  const realTitle = introPinnedEl.querySelector(".fgyb-real-title");
+  const realBottom = introPinnedEl.querySelector(".fgyb-real-bottom");
+
+  gsap.set([phase2El, phase3El], { opacity: 1 });
+  gsap.set(phase1Text, { opacity: 1, filter: "blur(0px)", scale: 1, y: 0 });
+  gsap.set(phase1Imgs, { opacity: 0.35, filter: "blur(0px)", yPercent: 18 });
+
+  gsap.set([phase2Text, phase3Text], { opacity: 0, filter: "blur(18px)", scale: 1.06, y: 28 });
+  gsap.set([phase2Imgs, phase3Imgs], { opacity: 0, filter: "blur(12px)", yPercent: 38 });
+
+  gsap.set(realHero, { pointerEvents: "none" });
+  gsap.set(realLogo, { opacity: 0, filter: "blur(22px)", scale: 1.16 });
+  gsap.set(realTitle, { opacity: 0, filter: "blur(20px)", scale: 1.05, y: 0 });
+  gsap.set(realBottom, { opacity: 0, filter: "blur(14px)", y: 32 });
+
+  const introTl = gsap.timeline({
     scrollTrigger: {
-      trigger: ".mxd-hero-08__tl-trigger",
-      start: "top 80%",
-      end: "top 40%",
-      scrub: {
-        scrub: true, 
-        ease: "power4.inOut",
+      trigger: introPinnedEl,
+      start: "top top",
+      end: "+=280%",
+      pin: true,
+      scrub: 0.7,
+      invalidateOnRefresh: true
+    }
+  });
+
+  // Phase 1: Parallax drift & blur dissolve out
+  introTl.to(phase1Imgs, { yPercent: -24, duration: 2.6, ease: "none" }, 0);
+  introTl.to(phase1Text, { opacity: 0, filter: "blur(18px)", scale: 0.95, y: -24, duration: 1.1, ease: "power2.inOut" }, 1.4);
+  introTl.to(phase1Imgs, { opacity: 0, filter: "blur(12px)", duration: 1.0, ease: "power2.inOut" }, 1.5);
+
+  // Phase 2: Dissolve in from blur, parallax drift & blur dissolve out
+  introTl.to(phase2Text, { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.1, ease: "power2.out" }, 2.0);
+  introTl.to(phase2Imgs, { opacity: 0.35, filter: "blur(0px)", duration: 1.0, ease: "power2.out" }, 2.1);
+  introTl.to(phase2Imgs, { yPercent: -24, duration: 3.2, ease: "none" }, 2.0);
+  introTl.to(phase2Text, { opacity: 0, filter: "blur(18px)", scale: 0.95, y: -24, duration: 1.1, ease: "power2.inOut" }, 4.3);
+  introTl.to(phase2Imgs, { opacity: 0, filter: "blur(12px)", duration: 1.0, ease: "power2.inOut" }, 4.4);
+
+  // Phase 3: Dissolve in from blur, parallax drift & exact center dissolve into Real Hero
+  introTl.to(phase3Text, { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.1, ease: "power2.out" }, 4.9);
+  introTl.to(phase3Imgs, { opacity: 0.35, filter: "blur(0px)", duration: 1.0, ease: "power2.out" }, 5.0);
+  introTl.to(phase3Imgs, { yPercent: -24, duration: 3.2, ease: "none" }, 4.9);
+
+  // Cross-dissolve in place: Phase 3 text blurs out directly into the Real Logo & Real Headline
+  introTl.to(phase3Text, { opacity: 0, filter: "blur(20px)", scale: 0.96, y: 0, duration: 1.3, ease: "power2.inOut" }, 7.0);
+  introTl.to(phase3Imgs, { opacity: 0, filter: "blur(14px)", duration: 1.1, ease: "power2.inOut" }, 7.0);
+
+  introTl.to(realLogo, { opacity: 1, filter: "blur(0px)", scale: 1, duration: 1.4, ease: "power2.out" }, 7.2);
+  introTl.to(realTitle, { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.4, ease: "power2.out" }, 7.3);
+  introTl.to(
+    realBottom,
+    {
+      opacity: 1,
+      filter: "blur(0px)",
+      y: 0,
+      duration: 1.2,
+      ease: "power2.out",
+      onStart: () => {
+        realHero.style.pointerEvents = "auto";
       },
-      // markers: true
+      onReverseComplete: () => {
+        realHero.style.pointerEvents = "none";
+      }
     },
-  });
-  hero07fadeOutTl.fromTo(element, {
-    transform: "translate3d(0, 0, 0)",
-    // scaleY: 1,
-    opacity: 1
-  }, 
-  {
-    transform: "translate3d(0, -5rem, 0)",
-    // scaleY: 0.8,
-    opacity: 0
-  });
-});
-hero07ScaleOutEl.forEach((element) => {
-  let hero07scaleOutTl = gsap.timeline({
-    scrollTrigger: {
-      trigger: ".mxd-hero-08__tl-trigger",
-      start: "top 40%",
-      end: "top 10%",
-      scrub: {
-        scrub: true, 
-        ease: "power4.inOut",
-      },
-      // markers: true
-    },
-  });
-  hero07scaleOutTl.fromTo(element, {
-    transform: "translate3d(0, 0, 0)",
-    scaleY: 1,
-    opacity: 1
-  }, 
-  {
-    transform: "translate3d(0, -5rem, 0)",
-    scaleY: 1.2,
-    opacity: 0
-  });
-});
+    7.6
+  );
+
+  // Hold on the completed interactive Hero before unpinning
+  introTl.to({}, { duration: 1.2 });
+}
 // --------------------------------------------- //
-// Hero #08 Scroll Out Animation End
+// Hero #08 Multi-Phase Scroll Intro & Dissolve End
 // --------------------------------------------- //
 
 
