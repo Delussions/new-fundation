@@ -61,218 +61,59 @@ gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(Flip);
 
 // --------------------------------------------- //
-// Loader & Cinematic Intro Animation Start
+// Loader & Loading Animation Start
 // --------------------------------------------- //
 const content = document.querySelector('body');
 const imgLoad = imagesLoaded(content);
 const loadingWrap = document.querySelector('.loading-wrap');
-const loadingItems = loadingWrap ? loadingWrap.querySelectorAll('.loading__item') : [];
+const loadingItems = loadingWrap.querySelectorAll('.loading__item');
 const fadeInItems = document.querySelectorAll('.loading__fade');
 
-gsap.set(loadingItems, { opacity: 0, y: 100 });
-gsap.set(fadeInItems, { opacity: 0 });
-
-let introFinished = false;
-let introTimeline = null;
-let reelInterval = null;
-
-function initCinematicIntro() {
-  const loaderEl = document.getElementById("loader");
-  if (!loaderEl) return;
-
-  const counterElement = loaderEl.querySelector(".loader__count .count__text");
-  const progressBar = loaderEl.querySelector(".loader__progress-bar");
-  const statusText = loaderEl.querySelector(".loader__status-text");
-  const cinemaFrame = loaderEl.querySelector(".loader__cinema-frame");
-  const reelImages = loaderEl.querySelectorAll(".loader__reel img");
-  const captions = loaderEl.querySelectorAll(".loader__caption");
-  const finaleEl = loaderEl.querySelector(".loader__finale");
-  const finaleLogo = loaderEl.querySelector(".loader__finale-logo");
-  const finaleBadge = loaderEl.querySelector(".loader__finale-badge");
-  const finaleTitle = loaderEl.querySelector(".loader__finale-title");
-  const finaleSub = loaderEl.querySelector(".loader__finale-sub");
-  const skipBtn = document.getElementById("loader-skip");
-
-  // Cycle documentary reel photos
-  let currentImgIdx = 0;
-  if (reelImages.length > 1) {
-    reelInterval = setInterval(() => {
-      reelImages[currentImgIdx].classList.remove("is-active");
-      currentImgIdx = (currentImgIdx + 1) % reelImages.length;
-      reelImages[currentImgIdx].classList.add("is-active");
-    }, 340);
-  }
-
-  function setActiveCaption(stepIdx) {
-    captions.forEach((cap, idx) => {
-      if (idx === stepIdx) {
-        cap.classList.add("is-active");
-      } else {
-        cap.classList.remove("is-active");
-      }
-    });
-  }
-
-  const counterState = { val: 0 };
-
-  introTimeline = gsap.timeline({
-    onComplete: () => {
-      finishIntro(false);
+function startLoader() {
+  let counterElement = document.querySelector(".loader__count .count__text");
+  let currentValue = 0;
+  function updateCounter() {
+    if (currentValue < 100) {
+      let increment = Math.floor(Math.random() * 10) + 1;
+      currentValue = Math.min(currentValue + increment, 100);
+      counterElement.textContent = currentValue;
+      let delay = Math.floor(Math.random() * 120) + 25;
+      setTimeout(updateCounter, delay);
     }
-  });
-
-  // Act 1: Open Cinema Frame Aperture
-  introTimeline.fromTo(
-    ".loader__topbar, .loader__bottombar",
-    { opacity: 0, y: 12 },
-    { opacity: 1, y: 0, duration: 0.55, ease: "power3.out", stagger: 0.08 },
-    0
-  );
-
-  if (cinemaFrame) {
-    introTimeline.to(
-      cinemaFrame,
-      {
-        clipPath: "inset(0% 0% 0% 0% round 2.6rem)",
-        duration: 0.85,
-        ease: "power4.inOut"
-      },
-      0.05
-    );
   }
+  updateCounter();
+}
+startLoader();
 
-  // Act 2: Progress Counter + Story Captions
-  introTimeline.to(
-    counterState,
-    {
-      val: 100,
-      duration: 2.7,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        const v = Math.round(counterState.val);
-        if (counterElement) counterElement.textContent = v;
-        if (progressBar) progressBar.style.width = v + "%";
-        if (v >= 34 && v < 68) {
-          setActiveCaption(1);
-          if (statusText) statusText.textContent = "Transformando vidas en Tlaxcala";
-        } else if (v >= 68) {
-          setActiveCaption(2);
-          if (statusText) statusText.textContent = "Siempre da con amor";
-        }
-      }
-    },
-    0.15
-  );
+imgLoad.on('done', instance => {
+  hideLoader();
+  pageAppearance();
+});
 
-  // Act 3: Finale Emblem & Motto Reveal inside Cinema Frame
-  if (finaleEl) {
-    gsap.set([finaleLogo, finaleBadge, finaleTitle, finaleSub], { opacity: 0, y: 22 });
-    introTimeline.to(
-      finaleEl,
-      {
-        opacity: 1,
-        duration: 0.5,
-        ease: "power3.out",
-        onStart: () => {
-          if (reelInterval) {
-            clearInterval(reelInterval);
-            reelInterval = null;
-          }
-        }
-      },
-      2.15
-    );
-    introTimeline.to(
-      [finaleLogo, finaleBadge, finaleTitle, finaleSub],
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.55,
-        stagger: 0.08,
-        ease: "power3.out"
-      },
-      2.22
-    );
-    // Hold finale briefly so user can admire it
-    introTimeline.to({}, { duration: 0.65 });
-  }
-
-  if (skipBtn) {
-    skipBtn.addEventListener("click", () => {
-      finishIntro(true);
-    });
-  }
+function hideLoader() {
+  gsap.to(".loader__count", { duration: 0.8, ease: 'power2.in', y: "100%", delay: 1.8 });
+  gsap.to(".loader__wrapper", { duration: 0.8, ease: 'power4.in', y: "-100%", delay: 2.2 });
+  setTimeout(() => {
+    document.getElementById("loader").classList.add("loaded");
+  }, 3200);
 }
 
-function finishIntro(isSkipped) {
-  if (introFinished) return;
-  introFinished = true;
-
-  if (reelInterval) {
-    clearInterval(reelInterval);
-    reelInterval = null;
-  }
-  if (introTimeline) {
-    introTimeline.kill();
-    introTimeline = null;
-  }
-
-  const loaderEl = document.getElementById("loader");
-  const counterElement = document.querySelector(".loader__count .count__text");
-  const progressBar = document.querySelector(".loader__progress-bar");
-  if (counterElement) counterElement.textContent = "100";
-  if (progressBar) progressBar.style.width = "100%";
-
-  const exitTl = gsap.timeline({
-    onComplete: () => {
-      if (loaderEl) loaderEl.classList.add("loaded");
-    }
-  });
-
-  const dur = isSkipped ? 0.55 : 0.85;
-
-  exitTl.to(
-    ".loader__topbar, .loader__bottombar",
-    { opacity: 0, y: -16, duration: 0.35, ease: "power2.in" },
-    0
-  );
-  exitTl.to(
-    ".loader__cinema-frame",
-    { scale: 1.06, opacity: 0, duration: 0.45, ease: "power3.in" },
-    0.05
-  );
-  exitTl.to(
-    ".loader__wrapper",
-    { yPercent: -100, duration: dur, ease: "power4.inOut" },
-    0.2
-  );
-  exitTl.to(
-    ".loader__curtain-accent",
-    { yPercent: -100, duration: dur, ease: "power4.inOut" },
-    0.32
-  );
-
-  // Trigger Hero & Header appearance as the curtain lifts
-  gsap.to(loadingItems, {
+function pageAppearance() {
+  gsap.set(loadingItems, { opacity: 0 })
+  gsap.to(loadingItems, { 
     duration: 1.1,
-    ease: "power4.out",
-    startAt: { y: 100 },
+    ease: 'power4',
+    startAt: {y: 120},
     y: 0,
     opacity: 1,
-    delay: 0.38,
+    delay: 0.8,
     stagger: 0.08
-  });
-  gsap.to(fadeInItems, {
-    duration: 0.8,
-    ease: "power2.out",
-    opacity: 1,
-    delay: 0.65
-  });
+  }, '>-=1.1');
+  gsap.set(fadeInItems, { opacity: 0 });
+  gsap.to(fadeInItems, { duration: 0.8, ease: 'none', opacity: 1, delay: 3.2 });
 }
-
-initCinematicIntro();
 // --------------------------------------------- //
-// Loader & Cinematic Intro Animation End
+// Loader & Loading Animation End
 // --------------------------------------------- //
 
 // --------------------------------------------- //
