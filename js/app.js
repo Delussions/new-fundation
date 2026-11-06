@@ -358,6 +358,7 @@ if (introPinnedEl) {
   // Real Hero elements
   const realHero = introPinnedEl.querySelector(".fgyb-real-hero");
   const realLogo = introPinnedEl.querySelector(".fgyb-real-logo");
+  const realEmblemImg = introPinnedEl.querySelector(".fgyb-hero-emblem");
   const realLine1 = introPinnedEl.querySelector(".fgyb-real-line-1");
   const realLine2 = introPinnedEl.querySelector(".fgyb-real-line-2");
   const realBottom = introPinnedEl.querySelector(".fgyb-real-bottom");
@@ -391,86 +392,79 @@ if (introPinnedEl) {
   gsap.set([p2RightImg, p3RightImg], { opacity: 0, filter: "blur(16px)", yPercent: 54, scale: 0.88, rotation: 2.5 });
   gsap.set([p2Photos, p3Photos], { scale: 1.24, yPercent: -10 });
 
-  // Initial states: Real Hero waiting to crystallize at exact center
+  // Initial states: Real Hero waiting for dramatic portal emergence
   gsap.set(realHero, { pointerEvents: "none" });
-  gsap.set(realLogo, { opacity: 0, filter: "blur(42px)", scale: 1.78, rotation: -8, y: 16 });
-  gsap.set(realLine1, { opacity: 0, filter: "blur(36px)", scale: 1.38, y: 52 });
-  gsap.set(realLine2, { opacity: 0, filter: "blur(36px)", scale: 1.38, y: 64 });
-  gsap.set(realBottom, { opacity: 0, filter: "blur(24px)", scale: 0.94, y: 72 });
+  gsap.set(realLogo, { opacity: 0, filter: "blur(38px)", scale: 0.28, rotation: -18, y: 0 });
+  if (realEmblemImg) {
+    gsap.set(realEmblemImg, { opacity: 0.82 });
+  }
+  gsap.set(realLine1, { opacity: 0, filter: "blur(38px)", scale: 1.68, y: -82 });
+  gsap.set(realLine2, { opacity: 0, filter: "blur(38px)", scale: 1.68, y: 88 });
+  gsap.set(realBottom, { opacity: 0, filter: "blur(26px)", scale: 0.88, y: 115 });
 
   const syncIntroPhases = (t) => {
     if (window.__fgybIntroLocked) return;
     if (phase1El) phase1El.style.visibility = t <= 3.0 ? "visible" : "hidden";
     if (phase2El) phase2El.style.visibility = t >= 2.15 && t <= 6.3 ? "visible" : "hidden";
-    if (phase3El) phase3El.style.visibility = t >= 5.45 && t <= 9.85 ? "visible" : "hidden";
-    if (realHero) realHero.style.visibility = t >= 8.05 ? "visible" : "hidden";
-    setIntroHeaderVisibility(t >= 8.35);
+    if (phase3El) phase3El.style.visibility = t >= 5.45 && t <= 9.6 ? "visible" : "hidden";
+    if (realHero) realHero.style.visibility = t >= 8.0 ? "visible" : "hidden";
+    setIntroHeaderVisibility(t >= 9.2);
   };
 
   const completeAndLockIntro = () => {
     if (window.__fgybIntroLocked) return;
     window.__fgybIntroLocked = true;
 
-    requestAnimationFrame(() => {
-      if (typeof lenis !== "undefined") {
-        lenis.stop();
-      }
+    const st = introTl && introTl.scrollTrigger;
+    const pinDistance = st ? Math.max(0, st.end - st.start) : 0;
+    const currentY = window.scrollY || window.pageYOffset || 0;
+    const targetY = Math.max(0, currentY - pinDistance);
 
-      // 1. Kill ScrollTrigger & timeline FIRST so GSAP's revert cannot overwrite our final state
-      if (introTl && introTl.scrollTrigger) {
-        introTl.scrollTrigger.kill(true);
-      }
-      if (introTl) {
-        introTl.kill();
-      }
+    // 1. Kill ScrollTrigger & timeline synchronously before paint
+    if (st) {
+      st.kill(true);
+    }
+    if (introTl) {
+      introTl.kill();
+    }
 
-      // 2. Remove the intro stage permanently
-      const introStageEl = introPinnedEl.querySelector(".fgyb-intro-stage");
-      if (introStageEl) {
-        introStageEl.style.display = "none";
-        introStageEl.remove();
-      }
+    // 2. Remove the intro stage permanently
+    const introStageEl = introPinnedEl.querySelector(".fgyb-intro-stage");
+    if (introStageEl) {
+      introStageEl.style.display = "none";
+      introStageEl.remove();
+    }
 
-      // 3. Clear all inline GSAP styles so the Real Hero stays 100% visible and interactive
-      gsap.set([introPinnedEl, realHero, realLogo, realLine1, realLine2, realBottom], {
-        clearProps: "all"
-      });
-      if (realHero) {
-        realHero.style.visibility = "visible";
-        realHero.style.opacity = "1";
-        realHero.style.pointerEvents = "auto";
-      }
-      setIntroHeaderVisibility(true);
-
-      // 4. Snap scroll to the top where the Real Hero now sits permanently
-      window.scrollTo(0, 0);
-      if (typeof lenis !== "undefined") {
-        lenis.scrollTo(0, { immediate: true });
-      }
-      ScrollTrigger.refresh();
-
-      setTimeout(() => {
-        if (typeof lenis !== "undefined") {
-          lenis.start();
-        }
-      }, 60);
+    // 3. Clear all inline GSAP styles so the Real Hero stays 100% visible in its native CSS state
+    gsap.set([introPinnedEl, realHero, realLogo, realEmblemImg, realLine1, realLine2, realBottom], {
+      clearProps: "all"
     });
+    if (realHero) {
+      realHero.style.visibility = "visible";
+      realHero.style.opacity = "1";
+      realHero.style.pointerEvents = "auto";
+    }
+    setIntroHeaderVisibility(true);
+
+    // 4. Offset scroll synchronously by the exact removed pin-spacer height (0.00px visual shift)
+    window.scrollTo(0, targetY);
+    if (typeof lenis !== "undefined") {
+      lenis.scrollTo(targetY, { immediate: true });
+    }
+    ScrollTrigger.refresh();
   };
 
   const introTl = gsap.timeline({
     scrollTrigger: {
       trigger: introPinnedEl,
       start: "top top",
-      end: "+=330%",
+      end: "+=340%",
       pin: true,
-      scrub: 1.05,
+      scrub: 0.75,
       invalidateOnRefresh: true,
       onUpdate: () => {
         if (window.__fgybIntroLocked) return;
         syncIntroPhases(introTl.time());
-        if (introTl.progress() >= 0.99) {
-          completeAndLockIntro();
-        }
       },
       onLeave: () => {
         completeAndLockIntro();
@@ -522,69 +516,82 @@ if (introPinnedEl) {
   introTl.to([p2LeftImg, p2RightImg], { opacity: 0, filter: "blur(18px)", duration: 1.1, ease: "power2.inOut" }, 5.02);
 
   // ==========================================
-  // PHASE 3: Staggered emergence & intensified morph into Real Hero
+  // PHASE 3: Staggered emergence & intensified portal transition into Real Hero
   // ==========================================
   introTl.to(p3LeftImg, { opacity: 0.54, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 5.55);
   introTl.to(p3RightImg, { opacity: 0.48, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 5.7);
-  introTl.to(p3LeftImg, { yPercent: -18, scale: 1.03, rotation: 0.8, duration: 2.3, ease: "none" }, 5.5);
-  introTl.to(p3RightImg, { yPercent: -26, scale: 1.04, rotation: -0.9, duration: 2.3, ease: "none" }, 5.5);
-  introTl.to(p3Photos, { scale: 1.06, yPercent: 4, duration: 2.3, ease: "none" }, 5.5);
+  introTl.to(p3LeftImg, { yPercent: -16, scale: 1.03, rotation: 0.8, duration: 2.1, ease: "none" }, 5.5);
+  introTl.to(p3RightImg, { yPercent: -24, scale: 1.04, rotation: -0.9, duration: 2.1, ease: "none" }, 5.5);
+  introTl.to(p3Photos, { scale: 1.06, yPercent: 4, duration: 2.1, ease: "none" }, 5.5);
 
   introTl.to(p3Line1, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 5.56);
   introTl.to(p3Line2, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 5.72);
   introTl.to(p3Sub, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.2, ease: "power3.out" }, 5.88);
 
   // Subtle living float while reading Phase 3
-  introTl.to([p3Line1, p3Line2], { y: -6, scale: 0.99, duration: 0.9, ease: "sine.inOut" }, 6.9);
+  introTl.to([p3Line1, p3Line2], { y: -6, scale: 0.99, duration: 0.8, ease: "sine.inOut" }, 6.85);
 
   // ==========================================
-  // INTENSIFIED FINAL CINEMATIC TRANSITION INTO REAL INTERACTIVE HERO
+  // DRAMATIC PORTAL FLY-THROUGH INTO REAL INTERACTIVE HERO
   // ==========================================
-  // Dramatic camera fly-through acceleration on Phase 3 parallax frames
+  // Stage A: Phase 3 photos & headline part and zoom past the camera lens
   introTl.to(
     p3LeftImg,
-    { opacity: 0, filter: "blur(34px)", yPercent: -82, scale: 1.34, rotation: 5, duration: 1.65, ease: "power3.inOut" },
-    7.8
+    { opacity: 0, filter: "blur(38px)", xPercent: -85, yPercent: -95, scale: 1.82, rotation: -14, duration: 1.5, ease: "power3.in" },
+    7.6
   );
   introTl.to(
     p3RightImg,
-    { opacity: 0, filter: "blur(34px)", yPercent: -96, scale: 1.38, rotation: -5, duration: 1.65, ease: "power3.inOut" },
-    7.85
+    { opacity: 0, filter: "blur(38px)", xPercent: 85, yPercent: -95, scale: 1.85, rotation: 14, duration: 1.5, ease: "power3.in" },
+    7.65
   );
-  introTl.to(p3Photos, { scale: 0.92, yPercent: 16, duration: 1.65, ease: "power2.inOut" }, 7.8);
+  introTl.to(p3Photos, { scale: 1.35, duration: 1.5, ease: "power3.in" }, 7.6);
 
-  // Deep optical pull on Phase 3 text right at the exact center
   introTl.to(
     p3Sub,
-    { opacity: 0, filter: "blur(26px)", y: 34, scale: 0.84, duration: 1.3, ease: "power3.inOut" },
-    7.85
+    { opacity: 0, filter: "blur(30px)", y: 105, scale: 1.4, duration: 1.25, ease: "power3.in" },
+    7.6
   );
   introTl.to(
     p3Line1,
-    { opacity: 0, filter: "blur(38px)", scale: 0.72, y: -14, duration: 1.6, ease: "power3.inOut" },
-    7.95
+    { opacity: 0, filter: "blur(42px)", scale: 2.25, y: -120, duration: 1.45, ease: "power3.in" },
+    7.65
   );
   introTl.to(
     p3Line2,
-    { opacity: 0, filter: "blur(38px)", scale: 0.72, y: 14, duration: 1.6, ease: "power3.inOut" },
-    8.1
+    { opacity: 0, filter: "blur(42px)", scale: 2.25, y: 120, duration: 1.45, ease: "power3.in" },
+    7.75
   );
 
-  // Grand emergence of Real Foundation Emblem & Real Headline from deep optical focus
+  // Stage B: Foundation Emblem surges forward into spotlight at center, then settles into background emblem
   introTl.to(
     realLogo,
-    { opacity: 1, filter: "blur(0px)", scale: 1, rotation: 0, y: 0, duration: 1.85, ease: "expo.out" },
+    { opacity: 1, filter: "blur(0px)", scale: 1.34, rotation: 0, y: 0, duration: 1.2, ease: "power3.out" },
     8.15
   );
   introTl.to(
+    realLogo,
+    { scale: 1, duration: 1.15, ease: "power2.inOut" },
+    9.35
+  );
+  if (realEmblemImg) {
+    introTl.to(
+      realEmblemImg,
+      { opacity: 0.2, duration: 1.15, ease: "power2.inOut" },
+      9.35
+    );
+  }
+
+  // Stage C: Real Hero headline lines converge from above & below over the emblem
+  introTl.to(
     realLine1,
-    { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.75, ease: "expo.out" },
-    8.35
+    { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.55, ease: "expo.out" },
+    8.85
   );
   introTl.to(
     realLine2,
-    { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.75, ease: "expo.out" },
-    8.55
+    { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.55, ease: "expo.out" },
+    9.05
   );
 
   introTl.to(
@@ -594,11 +601,14 @@ if (introPinnedEl) {
       filter: "blur(0px)",
       scale: 1,
       y: 0,
-      duration: 1.5,
-      ease: "power3.out"
+      duration: 1.35,
+      ease: "expo.out"
     },
-    8.85
+    9.35
   );
+
+  // Brief hold at 100% completion so scrub settles before onLeave unpins
+  introTl.to({}, { duration: 0.45 });
 }
 // --------------------------------------------- //
 // Hero #08 Multi-Phase Scroll Intro & Dissolve End
