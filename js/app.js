@@ -59,6 +59,7 @@
 
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(Flip);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 // Force page reload to always start at the very top for the cinematic intro
 if ("scrollRestoration" in history) {
@@ -163,7 +164,18 @@ function pageAppearance() {
 // --------------------------------------------- //
 // Lenis Scroll Plugin Start
 // --------------------------------------------- //
-const lenis = new Lenis();
+const isTouchOrMobile = window.matchMedia("(pointer: coarse), (max-width: 1199px)").matches;
+const lenis = new Lenis(
+  isTouchOrMobile
+    ? {
+        syncTouch: true,
+        syncTouchLerp: 0.06,
+        touchInertiaMultiplier: 10,
+        touchMultiplier: 0.48,
+        lerp: 0.075
+      }
+    : {}
+);
 lenis.scrollTo(0, { immediate: true });
 lenis.stop();
 lenis.on('scroll', ScrollTrigger.update);
@@ -389,51 +401,118 @@ if (introPinnedEl) {
   gsap.set([phase2El, phase3El, realHero], { visibility: "hidden" });
 
   // Initial states: Phase 1 ready on stage
-  gsap.set(p1LeftImg, { opacity: 0.52, filter: "blur(0px)", yPercent: 22, scale: 0.94, rotation: -2 });
-  gsap.set(p1RightImg, { opacity: 0.48, filter: "blur(0px)", yPercent: 34, scale: 0.9, rotation: 2.2 });
-  gsap.set(p1Photos, { scale: 1.22, yPercent: -8 });
+  gsap.set(p1LeftImg, {
+    opacity: 0.52,
+    filter: "blur(0px)",
+    yPercent: isTouchOrMobile ? 14 : 22,
+    scale: 0.95,
+    rotation: isTouchOrMobile ? -1.2 : -2
+  });
+  gsap.set(p1RightImg, {
+    opacity: 0.48,
+    filter: "blur(0px)",
+    yPercent: isTouchOrMobile ? 22 : 34,
+    scale: 0.92,
+    rotation: isTouchOrMobile ? 1.3 : 2.2
+  });
+  gsap.set(p1Photos, { scale: isTouchOrMobile ? 1.12 : 1.22, yPercent: isTouchOrMobile ? -5 : -8 });
 
-  // Initial states: Phase 2 & 3 waiting in deep optical blur
-  gsap.set([p2Line1, p2Line2, p3Line1, p3Line2], { opacity: 0, filter: "blur(24px)", y: 48, scale: 1.1 });
-  gsap.set([p2Sub, p3Sub], { opacity: 0, filter: "blur(18px)", y: 36, scale: 1.04 });
+  // Initial states: Phase 2 & 3 waiting in deep optical blur (calmed on mobile/touch)
+  gsap.set([p2Line1, p2Line2, p3Line1, p3Line2], {
+    opacity: 0,
+    filter: isTouchOrMobile ? "blur(14px)" : "blur(24px)",
+    y: isTouchOrMobile ? 28 : 48,
+    scale: isTouchOrMobile ? 1.05 : 1.1
+  });
+  gsap.set([p2Sub, p3Sub], {
+    opacity: 0,
+    filter: isTouchOrMobile ? "blur(10px)" : "blur(18px)",
+    y: isTouchOrMobile ? 22 : 36,
+    scale: isTouchOrMobile ? 1.02 : 1.04
+  });
 
-  gsap.set([p2LeftImg, p3LeftImg], { opacity: 0, filter: "blur(16px)", yPercent: 40, scale: 0.9, rotation: -2.5 });
-  gsap.set([p2RightImg, p3RightImg], { opacity: 0, filter: "blur(16px)", yPercent: 54, scale: 0.88, rotation: 2.5 });
-  gsap.set([p2Photos, p3Photos], { scale: 1.24, yPercent: -10 });
+  gsap.set([p2LeftImg, p3LeftImg], {
+    opacity: 0,
+    filter: isTouchOrMobile ? "blur(10px)" : "blur(16px)",
+    yPercent: isTouchOrMobile ? 24 : 40,
+    scale: 0.92,
+    rotation: isTouchOrMobile ? -1.4 : -2.5
+  });
+  gsap.set([p2RightImg, p3RightImg], {
+    opacity: 0,
+    filter: isTouchOrMobile ? "blur(10px)" : "blur(16px)",
+    yPercent: isTouchOrMobile ? 32 : 54,
+    scale: 0.9,
+    rotation: isTouchOrMobile ? 1.4 : 2.5
+  });
+  gsap.set([p2Photos, p3Photos], {
+    scale: isTouchOrMobile ? 1.12 : 1.24,
+    yPercent: isTouchOrMobile ? -6 : -10
+  });
 
   // Initial states: Real Hero waiting for dramatic portal & 3D character emergence
   gsap.set(realHero, { pointerEvents: "none" });
-  gsap.set(realLogo, { xPercent: -50, yPercent: -50, opacity: 0, filter: "blur(38px)", scale: 0.28, rotation: -18, x: 0, y: 0 });
+  gsap.set(realLogo, {
+    xPercent: -50,
+    yPercent: -50,
+    opacity: 0,
+    filter: isTouchOrMobile ? "blur(18px)" : "blur(38px)",
+    scale: isTouchOrMobile ? 0.55 : 0.28,
+    rotation: isTouchOrMobile ? -8 : -18,
+    x: 0,
+    y: 0
+  });
   if (realEmblemImg) {
     gsap.set(realEmblemImg, { opacity: 0.82 });
   }
-  gsap.set(realLine1, { scale: 1.55, y: -72 });
-  gsap.set(realLine2, { scale: 1.65, y: 82 });
+  gsap.set(realLine1, {
+    scale: isTouchOrMobile ? 1.22 : 1.55,
+    y: isTouchOrMobile ? -36 : -72
+  });
+  gsap.set(realLine2, {
+    scale: isTouchOrMobile ? 1.26 : 1.65,
+    y: isTouchOrMobile ? 42 : 82
+  });
   if (line1Chars.length) {
     gsap.set(line1Chars, {
       opacity: 0,
-      yPercent: -115,
-      rotateX: 82,
-      rotateZ: -6,
-      scale: 1.45,
-      filter: "blur(24px)"
+      yPercent: isTouchOrMobile ? -65 : -115,
+      rotateX: isTouchOrMobile ? 45 : 82,
+      rotateZ: isTouchOrMobile ? -3 : -6,
+      scale: isTouchOrMobile ? 1.18 : 1.45,
+      filter: isTouchOrMobile ? "blur(12px)" : "blur(24px)"
     });
   } else {
-    gsap.set(realLine1, { opacity: 0, filter: "blur(38px)", scale: 1.68, y: -82 });
+    gsap.set(realLine1, {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(18px)" : "blur(38px)",
+      scale: isTouchOrMobile ? 1.28 : 1.68,
+      y: isTouchOrMobile ? -42 : -82
+    });
   }
   if (line2Chars.length) {
     gsap.set(line2Chars, {
       opacity: 0,
-      yPercent: 115,
-      rotateX: -82,
-      rotateZ: 8,
-      scale: 1.55,
-      filter: "blur(26px)"
+      yPercent: isTouchOrMobile ? 65 : 115,
+      rotateX: isTouchOrMobile ? -45 : -82,
+      rotateZ: isTouchOrMobile ? 4 : 8,
+      scale: isTouchOrMobile ? 1.22 : 1.55,
+      filter: isTouchOrMobile ? "blur(14px)" : "blur(26px)"
     });
   } else {
-    gsap.set(realLine2, { opacity: 0, filter: "blur(38px)", scale: 1.68, y: 88 });
+    gsap.set(realLine2, {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(18px)" : "blur(38px)",
+      scale: isTouchOrMobile ? 1.28 : 1.68,
+      y: isTouchOrMobile ? 46 : 88
+    });
   }
-  gsap.set(realBottom, { opacity: 0, filter: "blur(26px)", scale: 0.88, y: 115 });
+  gsap.set(realBottom, {
+    opacity: 0,
+    filter: isTouchOrMobile ? "blur(14px)" : "blur(26px)",
+    scale: isTouchOrMobile ? 0.94 : 0.88,
+    y: isTouchOrMobile ? 56 : 115
+  });
 
   const syncIntroPhases = (t) => {
     if (window.__fgybIntroLocked) return;
@@ -511,22 +590,38 @@ if (introPinnedEl) {
           trigger: introPinnedEl,
           start: "top top",
           end: "bottom top",
-          scrub: 0.6
+          scrub: isTouchOrMobile ? 1.0 : 0.6
         }
       });
       heroScrollOutTl.to(
         realLine1,
-        { xPercent: -8, y: -55, scale: 0.94, opacity: 0.25, ease: "none" },
+        {
+          xPercent: isTouchOrMobile ? -4 : -8,
+          y: isTouchOrMobile ? -28 : -55,
+          scale: isTouchOrMobile ? 0.96 : 0.94,
+          opacity: 0.25,
+          ease: "none"
+        },
         0
       );
       heroScrollOutTl.to(
         realLine2,
-        { xPercent: 8, y: -35, scale: 1.06, opacity: 0.25, ease: "none" },
+        {
+          xPercent: isTouchOrMobile ? 4 : 8,
+          y: isTouchOrMobile ? -18 : -35,
+          scale: isTouchOrMobile ? 1.03 : 1.06,
+          opacity: 0.25,
+          ease: "none"
+        },
         0
       );
       heroScrollOutTl.to(
         realLogo,
-        { y: -85, scale: 1.22, ease: "none" },
+        {
+          y: isTouchOrMobile ? -44 : -85,
+          scale: isTouchOrMobile ? 1.1 : 1.22,
+          ease: "none"
+        },
         0
       );
     }
@@ -574,6 +669,13 @@ if (introPinnedEl) {
     // 4. Offset scroll synchronously by the exact removed pin-spacer height (0.00px visual shift)
     window.scrollTo(0, targetY);
     if (typeof lenis !== "undefined") {
+      if (isTouchOrMobile && lenis.options) {
+        lenis.options.touchMultiplier = 0.85;
+        lenis.options.touchInertiaMultiplier = 18;
+        if (lenis.virtualScroll && lenis.virtualScroll.options) {
+          lenis.virtualScroll.options.touchMultiplier = 0.85;
+        }
+      }
       lenis.scrollTo(targetY, { immediate: true });
     }
 
@@ -586,9 +688,9 @@ if (introPinnedEl) {
     scrollTrigger: {
       trigger: introPinnedEl,
       start: "top top",
-      end: "+=340%",
+      end: isTouchOrMobile ? "+=600%" : "+=340%",
       pin: true,
-      scrub: 0.75,
+      scrub: isTouchOrMobile ? 1.5 : 0.75,
       invalidateOnRefresh: true,
       onUpdate: () => {
         if (window.__fgybIntroLocked) return;
@@ -608,56 +710,190 @@ if (introPinnedEl) {
   // ==========================================
   // PHASE 1: Multi-plane parallax & staggered optical dissolve
   // ==========================================
-  introTl.to(p1LeftImg, { yPercent: -32, scale: 1.05, rotation: 1.2, duration: 2.9, ease: "none" }, 0);
-  introTl.to(p1RightImg, { yPercent: -46, scale: 1.08, rotation: -1.5, duration: 2.9, ease: "none" }, 0);
-  introTl.to(p1Photos, { scale: 1.0, yPercent: 8, duration: 2.9, ease: "none" }, 0);
+  introTl.to(
+    p1LeftImg,
+    {
+      yPercent: isTouchOrMobile ? -20 : -32,
+      scale: 1.04,
+      rotation: isTouchOrMobile ? 0.7 : 1.2,
+      duration: 2.9,
+      ease: "none"
+    },
+    0
+  );
+  introTl.to(
+    p1RightImg,
+    {
+      yPercent: isTouchOrMobile ? -28 : -46,
+      scale: 1.06,
+      rotation: isTouchOrMobile ? -0.9 : -1.5,
+      duration: 2.9,
+      ease: "none"
+    },
+    0
+  );
+  introTl.to(p1Photos, { scale: 1.0, yPercent: isTouchOrMobile ? 5 : 8, duration: 2.9, ease: "none" }, 0);
 
   // Subtle living float while reading Phase 1
-  introTl.to([p1Line1, p1Line2], { y: -8, scale: 0.985, duration: 1.5, ease: "sine.inOut" }, 0);
+  introTl.to([p1Line1, p1Line2], { y: isTouchOrMobile ? -5 : -8, scale: 0.99, duration: 1.5, ease: "sine.inOut" }, 0);
 
   // Staggered dissolve out of Phase 1
-  introTl.to(p1Line1, { opacity: 0, filter: "blur(24px)", y: -38, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 1.55);
-  introTl.to(p1Line2, { opacity: 0, filter: "blur(24px)", y: -34, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 1.68);
-  introTl.to(p1Sub, { opacity: 0, filter: "blur(18px)", y: -26, scale: 0.95, duration: 1.1, ease: "power2.inOut" }, 1.8);
-  introTl.to([p1LeftImg, p1RightImg], { opacity: 0, filter: "blur(18px)", duration: 1.1, ease: "power2.inOut" }, 1.7);
+  introTl.to(
+    p1Line1,
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(14px)" : "blur(24px)",
+      y: isTouchOrMobile ? -24 : -38,
+      scale: isTouchOrMobile ? 0.95 : 0.92,
+      duration: 1.15,
+      ease: "power2.inOut"
+    },
+    1.55
+  );
+  introTl.to(
+    p1Line2,
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(14px)" : "blur(24px)",
+      y: isTouchOrMobile ? -20 : -34,
+      scale: isTouchOrMobile ? 0.95 : 0.92,
+      duration: 1.15,
+      ease: "power2.inOut"
+    },
+    1.68
+  );
+  introTl.to(
+    p1Sub,
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(10px)" : "blur(18px)",
+      y: isTouchOrMobile ? -16 : -26,
+      scale: 0.96,
+      duration: 1.1,
+      ease: "power2.inOut"
+    },
+    1.8
+  );
+  introTl.to(
+    [p1LeftImg, p1RightImg],
+    { opacity: 0, filter: isTouchOrMobile ? "blur(12px)" : "blur(18px)", duration: 1.1, ease: "power2.inOut" },
+    1.7
+  );
 
   // ==========================================
   // PHASE 2: Staggered emergence, asymmetric parallax & dissolve
   // ==========================================
   introTl.to(p2LeftImg, { opacity: 0.54, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 2.25);
   introTl.to(p2RightImg, { opacity: 0.48, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 2.4);
-  introTl.to(p2LeftImg, { yPercent: -34, scale: 1.06, rotation: 1.4, duration: 3.8, ease: "none" }, 2.2);
-  introTl.to(p2RightImg, { yPercent: -48, scale: 1.08, rotation: -1.6, duration: 3.8, ease: "none" }, 2.2);
-  introTl.to(p2Photos, { scale: 1.0, yPercent: 10, duration: 3.8, ease: "none" }, 2.2);
+  introTl.to(
+    p2LeftImg,
+    {
+      yPercent: isTouchOrMobile ? -22 : -34,
+      scale: 1.05,
+      rotation: isTouchOrMobile ? 0.8 : 1.4,
+      duration: 3.8,
+      ease: "none"
+    },
+    2.2
+  );
+  introTl.to(
+    p2RightImg,
+    {
+      yPercent: isTouchOrMobile ? -30 : -48,
+      scale: 1.06,
+      rotation: isTouchOrMobile ? -1.0 : -1.6,
+      duration: 3.8,
+      ease: "none"
+    },
+    2.2
+  );
+  introTl.to(p2Photos, { scale: 1.0, yPercent: isTouchOrMobile ? 6 : 10, duration: 3.8, ease: "none" }, 2.2);
 
   introTl.to(p2Line1, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 2.26);
   introTl.to(p2Line2, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 2.42);
   introTl.to(p2Sub, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.2, ease: "power3.out" }, 2.58);
 
   // Subtle living float while reading Phase 2
-  introTl.to([p2Line1, p2Line2], { y: -8, scale: 0.985, duration: 1.2, ease: "sine.inOut" }, 3.65);
+  introTl.to([p2Line1, p2Line2], { y: isTouchOrMobile ? -5 : -8, scale: 0.99, duration: 1.2, ease: "sine.inOut" }, 3.65);
 
   // Staggered dissolve out of Phase 2
-  introTl.to(p2Line1, { opacity: 0, filter: "blur(24px)", y: -38, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 4.88);
-  introTl.to(p2Line2, { opacity: 0, filter: "blur(24px)", y: -34, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 5.0);
-  introTl.to(p2Sub, { opacity: 0, filter: "blur(18px)", y: -26, scale: 0.95, duration: 1.1, ease: "power2.inOut" }, 5.12);
-  introTl.to([p2LeftImg, p2RightImg], { opacity: 0, filter: "blur(18px)", duration: 1.1, ease: "power2.inOut" }, 5.02);
+  introTl.to(
+    p2Line1,
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(14px)" : "blur(24px)",
+      y: isTouchOrMobile ? -24 : -38,
+      scale: isTouchOrMobile ? 0.95 : 0.92,
+      duration: 1.15,
+      ease: "power2.inOut"
+    },
+    4.88
+  );
+  introTl.to(
+    p2Line2,
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(14px)" : "blur(24px)",
+      y: isTouchOrMobile ? -20 : -34,
+      scale: isTouchOrMobile ? 0.95 : 0.92,
+      duration: 1.15,
+      ease: "power2.inOut"
+    },
+    5.0
+  );
+  introTl.to(
+    p2Sub,
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(10px)" : "blur(18px)",
+      y: isTouchOrMobile ? -16 : -26,
+      scale: 0.96,
+      duration: 1.1,
+      ease: "power2.inOut"
+    },
+    5.12
+  );
+  introTl.to(
+    [p2LeftImg, p2RightImg],
+    { opacity: 0, filter: isTouchOrMobile ? "blur(12px)" : "blur(18px)", duration: 1.1, ease: "power2.inOut" },
+    5.02
+  );
 
   // ==========================================
   // PHASE 3: Staggered emergence & intensified portal transition into Real Hero
   // ==========================================
   introTl.to(p3LeftImg, { opacity: 0.54, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 5.55);
   introTl.to(p3RightImg, { opacity: 0.48, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 5.7);
-  introTl.to(p3LeftImg, { yPercent: -16, scale: 1.03, rotation: 0.8, duration: 2.1, ease: "none" }, 5.5);
-  introTl.to(p3RightImg, { yPercent: -24, scale: 1.04, rotation: -0.9, duration: 2.1, ease: "none" }, 5.5);
-  introTl.to(p3Photos, { scale: 1.06, yPercent: 4, duration: 2.1, ease: "none" }, 5.5);
+  introTl.to(
+    p3LeftImg,
+    {
+      yPercent: isTouchOrMobile ? -10 : -16,
+      scale: 1.02,
+      rotation: isTouchOrMobile ? 0.5 : 0.8,
+      duration: 2.1,
+      ease: "none"
+    },
+    5.5
+  );
+  introTl.to(
+    p3RightImg,
+    {
+      yPercent: isTouchOrMobile ? -15 : -24,
+      scale: 1.03,
+      rotation: isTouchOrMobile ? -0.6 : -0.9,
+      duration: 2.1,
+      ease: "none"
+    },
+    5.5
+  );
+  introTl.to(p3Photos, { scale: isTouchOrMobile ? 1.03 : 1.06, yPercent: 4, duration: 2.1, ease: "none" }, 5.5);
 
   introTl.to(p3Line1, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 5.56);
   introTl.to(p3Line2, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 5.72);
   introTl.to(p3Sub, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.2, ease: "power3.out" }, 5.88);
 
   // Subtle living float while reading Phase 3
-  introTl.to([p3Line1, p3Line2], { y: -6, scale: 0.99, duration: 0.8, ease: "sine.inOut" }, 6.85);
+  introTl.to([p3Line1, p3Line2], { y: isTouchOrMobile ? -4 : -6, scale: 0.99, duration: 0.8, ease: "sine.inOut" }, 6.85);
 
   // ==========================================
   // DRAMATIC PORTAL FLY-THROUGH INTO REAL INTERACTIVE HERO
@@ -665,36 +901,90 @@ if (introPinnedEl) {
   // Stage A: Phase 3 photos & headline part and zoom past the camera lens
   introTl.to(
     p3LeftImg,
-    { opacity: 0, filter: "blur(38px)", xPercent: -85, yPercent: -95, scale: 1.82, rotation: -14, duration: 1.5, ease: "power3.in" },
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(18px)" : "blur(38px)",
+      xPercent: isTouchOrMobile ? -45 : -85,
+      yPercent: isTouchOrMobile ? -50 : -95,
+      scale: isTouchOrMobile ? 1.38 : 1.82,
+      rotation: isTouchOrMobile ? -7 : -14,
+      duration: 1.5,
+      ease: "power2.inOut"
+    },
     7.6
   );
   introTl.to(
     p3RightImg,
-    { opacity: 0, filter: "blur(38px)", xPercent: 85, yPercent: -95, scale: 1.85, rotation: 14, duration: 1.5, ease: "power3.in" },
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(18px)" : "blur(38px)",
+      xPercent: isTouchOrMobile ? 45 : 85,
+      yPercent: isTouchOrMobile ? -50 : -95,
+      scale: isTouchOrMobile ? 1.4 : 1.85,
+      rotation: isTouchOrMobile ? 7 : 14,
+      duration: 1.5,
+      ease: "power2.inOut"
+    },
     7.65
   );
-  introTl.to(p3Photos, { scale: 1.35, duration: 1.5, ease: "power3.in" }, 7.6);
+  introTl.to(
+    p3Photos,
+    { scale: isTouchOrMobile ? 1.16 : 1.35, duration: 1.5, ease: "power2.inOut" },
+    7.6
+  );
 
   introTl.to(
     p3Sub,
-    { opacity: 0, filter: "blur(30px)", y: 105, scale: 1.4, duration: 1.25, ease: "power3.in" },
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(14px)" : "blur(30px)",
+      y: isTouchOrMobile ? 52 : 105,
+      scale: isTouchOrMobile ? 1.16 : 1.4,
+      duration: 1.25,
+      ease: "power2.inOut"
+    },
     7.6
   );
   introTl.to(
     p3Line1,
-    { opacity: 0, filter: "blur(42px)", scale: 2.25, y: -120, duration: 1.45, ease: "power3.in" },
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(18px)" : "blur(42px)",
+      scale: isTouchOrMobile ? 1.48 : 2.25,
+      y: isTouchOrMobile ? -60 : -120,
+      duration: 1.45,
+      ease: "power2.inOut"
+    },
     7.65
   );
   introTl.to(
     p3Line2,
-    { opacity: 0, filter: "blur(42px)", scale: 2.25, y: 120, duration: 1.45, ease: "power3.in" },
+    {
+      opacity: 0,
+      filter: isTouchOrMobile ? "blur(18px)" : "blur(42px)",
+      scale: isTouchOrMobile ? 1.48 : 2.25,
+      y: isTouchOrMobile ? 60 : 120,
+      duration: 1.45,
+      ease: "power2.inOut"
+    },
     7.75
   );
 
   // Stage B: Foundation Emblem surges forward into spotlight at center, then settles into background emblem
   introTl.to(
     realLogo,
-    { xPercent: -50, yPercent: -50, opacity: 1, filter: "blur(0px)", scale: 1.34, rotation: 0, x: 0, y: 0, duration: 1.2, ease: "power3.out" },
+    {
+      xPercent: -50,
+      yPercent: -50,
+      opacity: 1,
+      filter: "blur(0px)",
+      scale: isTouchOrMobile ? 1.14 : 1.34,
+      rotation: 0,
+      x: 0,
+      y: 0,
+      duration: 1.2,
+      ease: "power3.out"
+    },
     8.15
   );
   introTl.to(
@@ -713,7 +1003,7 @@ if (introPinnedEl) {
   // Stage C: 3D Character-by-Character Sculptural Wave Reveal of "Juntos por un / mejor mañana"
   introTl.to(
     realLine1,
-    { scale: 1, y: 0, duration: 1.65, ease: "expo.out" },
+    { scale: 1, y: 0, duration: 1.65, ease: isTouchOrMobile ? "power3.out" : "expo.out" },
     8.75
   );
   if (line1Chars.length) {
@@ -727,8 +1017,8 @@ if (introPinnedEl) {
         scale: 1,
         filter: "blur(0px)",
         duration: 1.15,
-        stagger: { each: 0.04, from: "center" },
-        ease: "expo.out"
+        stagger: { each: isTouchOrMobile ? 0.032 : 0.04, from: "center" },
+        ease: isTouchOrMobile ? "power3.out" : "expo.out"
       },
       8.75
     );
@@ -736,7 +1026,7 @@ if (introPinnedEl) {
 
   introTl.to(
     realLine2,
-    { scale: 1, y: 0, duration: 1.75, ease: "expo.out" },
+    { scale: 1, y: 0, duration: 1.75, ease: isTouchOrMobile ? "power3.out" : "expo.out" },
     9.0
   );
   if (line2Chars.length) {
@@ -750,8 +1040,8 @@ if (introPinnedEl) {
         scale: 1,
         filter: "blur(0px)",
         duration: 1.25,
-        stagger: { each: 0.045, from: "edges" },
-        ease: "expo.out"
+        stagger: { each: isTouchOrMobile ? 0.036 : 0.045, from: "edges" },
+        ease: isTouchOrMobile ? "power3.out" : "expo.out"
       },
       9.0
     );
@@ -765,13 +1055,13 @@ if (introPinnedEl) {
       scale: 1,
       y: 0,
       duration: 1.35,
-      ease: "expo.out"
+      ease: isTouchOrMobile ? "power3.out" : "expo.out"
     },
     9.5
   );
 
   // Brief hold at 100% completion so scrub settles before onLeave unpins
-  introTl.to({}, { duration: 0.45 });
+  introTl.to({}, { duration: isTouchOrMobile ? 0.65 : 0.45 });
 }
 // --------------------------------------------- //
 // Hero #08 Multi-Phase Scroll Intro & Dissolve End
