@@ -60,6 +60,18 @@
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(Flip);
 
+// Force page reload to always start at the very top for the cinematic intro
+if ("scrollRestoration" in history) {
+  history.scrollRestoration = "manual";
+}
+if (window.location.hash) {
+  history.replaceState(null, "", window.location.pathname + window.location.search);
+}
+window.scrollTo(0, 0);
+window.addEventListener("beforeunload", function () {
+  window.scrollTo(0, 0);
+});
+
 // --------------------------------------------- //
 // Loader & Loading Animation Start
 // --------------------------------------------- //
@@ -94,6 +106,14 @@ function hideLoader() {
   gsap.to(".loader__count", { duration: 0.8, ease: 'power2.in', y: "100%", delay: 1.8 });
   gsap.to(".loader__wrapper", { duration: 0.8, ease: 'power4.in', y: "-100%", delay: 2.2 });
   setTimeout(() => {
+    window.scrollTo(0, 0);
+    if (typeof lenis !== "undefined") {
+      lenis.scrollTo(0, { immediate: true });
+      lenis.start();
+    }
+    ScrollTrigger.refresh();
+  }, 2200);
+  setTimeout(() => {
     document.getElementById("loader").classList.add("loaded");
   }, 3200);
 }
@@ -123,6 +143,8 @@ function pageAppearance() {
 // Lenis Scroll Plugin Start
 // --------------------------------------------- //
 const lenis = new Lenis();
+lenis.scrollTo(0, { immediate: true });
+lenis.stop();
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => {
   lenis.raf(time * 1000)
@@ -286,6 +308,7 @@ const introPinnedEl = document.querySelector(".fgyb-intro-pinned");
 if (introPinnedEl) {
   const headerEl = document.querySelector(".mxd-header");
   const navContainEl = document.querySelector(".mxd-nav__contain");
+  const phase1El = introPinnedEl.querySelector(".is-phase-1");
   const phase2El = introPinnedEl.querySelector(".is-phase-2");
   const phase3El = introPinnedEl.querySelector(".is-phase-3");
 
@@ -333,6 +356,8 @@ if (introPinnedEl) {
   };
 
   gsap.set([phase2El, phase3El], { opacity: 1 });
+  gsap.set(phase1El, { visibility: "visible" });
+  gsap.set([phase2El, phase3El, realHero], { visibility: "hidden" });
 
   // Initial states: Phase 1 ready on stage
   gsap.set(p1LeftImg, { opacity: 0.52, filter: "blur(0px)", yPercent: 22, scale: 0.94, rotation: -2 });
@@ -354,6 +379,14 @@ if (introPinnedEl) {
   gsap.set(realLine2, { opacity: 0, filter: "blur(26px)", scale: 1.12, y: 24 });
   gsap.set(realBottom, { opacity: 0, filter: "blur(16px)", y: 42 });
 
+  const syncIntroPhases = (t) => {
+    if (phase1El) phase1El.style.visibility = t <= 3.0 ? "visible" : "hidden";
+    if (phase2El) phase2El.style.visibility = t >= 2.15 && t <= 6.3 ? "visible" : "hidden";
+    if (phase3El) phase3El.style.visibility = t >= 5.45 && t <= 9.8 ? "visible" : "hidden";
+    if (realHero) realHero.style.visibility = t >= 8.2 ? "visible" : "hidden";
+    setIntroHeaderVisibility(t >= 8.4);
+  };
+
   const introTl = gsap.timeline({
     scrollTrigger: {
       trigger: introPinnedEl,
@@ -362,14 +395,14 @@ if (introPinnedEl) {
       pin: true,
       scrub: 1.1,
       invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        setIntroHeaderVisibility(self.progress >= 0.8);
+      onUpdate: () => {
+        syncIntroPhases(introTl.time());
       },
       onLeave: () => {
-        setIntroHeaderVisibility(true);
+        syncIntroPhases(11.7);
       },
       onLeaveBack: () => {
-        setIntroHeaderVisibility(false);
+        syncIntroPhases(0);
       }
     }
   });
