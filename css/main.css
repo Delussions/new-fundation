@@ -22156,6 +22156,26 @@ h3 em,
   height: 100svh;
 }
 
+.hero-08-headline__image.fgyb-real-logo {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+     -moz-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+     -moz-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.hero-08-headline__image.fgyb-real-logo img {
+  display: block;
+  margin: 0 auto;
+}
+
 .footer-blocks__links {
   -webkit-box-orient: vertical !important;
   -webkit-box-direction: normal !important;

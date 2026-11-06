@@ -403,7 +403,7 @@ if (introPinnedEl) {
 
   // Initial states: Real Hero waiting for dramatic portal & 3D character emergence
   gsap.set(realHero, { pointerEvents: "none" });
-  gsap.set(realLogo, { opacity: 0, filter: "blur(38px)", scale: 0.28, rotation: -18, y: 0 });
+  gsap.set(realLogo, { xPercent: -50, yPercent: -50, opacity: 0, filter: "blur(38px)", scale: 0.28, rotation: -18, x: 0, y: 0 });
   if (realEmblemImg) {
     gsap.set(realEmblemImg, { opacity: 0.82 });
   }
@@ -445,6 +445,9 @@ if (introPinnedEl) {
   };
 
   const activateInteractiveHeroAnimations = () => {
+    if (realLogo) {
+      gsap.set(realLogo, { xPercent: -50, yPercent: -50, x: 0, y: 0 });
+    }
     // 1. Subtle interactive cursor depth parallax & character wave on the live Real Hero
     if (window.matchMedia("(min-width: 992px)").matches && realHero) {
       const xLine1 = gsap.quickTo(realLine1, "x", { duration: 0.9, ease: "power3.out" });
@@ -558,6 +561,9 @@ if (introPinnedEl) {
       [introPinnedEl, realHero, realLogo, realEmblemImg, realLine1, realLine2, realBottom, line1Chars, line2Chars],
       { clearProps: "all" }
     );
+    if (realLogo) {
+      gsap.set(realLogo, { xPercent: -50, yPercent: -50, x: 0, y: 0 });
+    }
     if (realHero) {
       realHero.style.visibility = "visible";
       realHero.style.opacity = "1";
@@ -688,12 +694,12 @@ if (introPinnedEl) {
   // Stage B: Foundation Emblem surges forward into spotlight at center, then settles into background emblem
   introTl.to(
     realLogo,
-    { opacity: 1, filter: "blur(0px)", scale: 1.34, rotation: 0, y: 0, duration: 1.2, ease: "power3.out" },
+    { xPercent: -50, yPercent: -50, opacity: 1, filter: "blur(0px)", scale: 1.34, rotation: 0, x: 0, y: 0, duration: 1.2, ease: "power3.out" },
     8.15
   );
   introTl.to(
     realLogo,
-    { scale: 1, duration: 1.2, ease: "power2.inOut" },
+    { xPercent: -50, yPercent: -50, scale: 1, x: 0, y: 0, duration: 1.2, ease: "power2.inOut" },
     9.45
   );
   if (realEmblemImg) {
