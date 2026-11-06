@@ -361,7 +361,16 @@ if (introPinnedEl) {
   const realEmblemImg = introPinnedEl.querySelector(".fgyb-hero-emblem");
   const realLine1 = introPinnedEl.querySelector(".fgyb-real-line-1");
   const realLine2 = introPinnedEl.querySelector(".fgyb-real-line-2");
+  const realLine2Em = introPinnedEl.querySelector(".fgyb-real-line-2 em") || realLine2;
   const realBottom = introPinnedEl.querySelector(".fgyb-real-bottom");
+
+  // Split "Juntos por un" and "mejor mañana" into 3D animated characters
+  if (typeof SplitType !== "undefined") {
+    new SplitType(realLine1, { types: "words, chars", tagName: "span" });
+    new SplitType(realLine2Em, { types: "words, chars", tagName: "span" });
+  }
+  const line1Chars = realLine1 ? realLine1.querySelectorAll(".char") : [];
+  const line2Chars = realLine2 ? realLine2.querySelectorAll(".char") : [];
 
   const setIntroHeaderVisibility = (showHeader) => {
     if (showHeader) {
@@ -392,14 +401,38 @@ if (introPinnedEl) {
   gsap.set([p2RightImg, p3RightImg], { opacity: 0, filter: "blur(16px)", yPercent: 54, scale: 0.88, rotation: 2.5 });
   gsap.set([p2Photos, p3Photos], { scale: 1.24, yPercent: -10 });
 
-  // Initial states: Real Hero waiting for dramatic portal emergence
+  // Initial states: Real Hero waiting for dramatic portal & 3D character emergence
   gsap.set(realHero, { pointerEvents: "none" });
   gsap.set(realLogo, { opacity: 0, filter: "blur(38px)", scale: 0.28, rotation: -18, y: 0 });
   if (realEmblemImg) {
     gsap.set(realEmblemImg, { opacity: 0.82 });
   }
-  gsap.set(realLine1, { opacity: 0, filter: "blur(38px)", scale: 1.68, y: -82 });
-  gsap.set(realLine2, { opacity: 0, filter: "blur(38px)", scale: 1.68, y: 88 });
+  gsap.set(realLine1, { scale: 1.55, y: -72 });
+  gsap.set(realLine2, { scale: 1.65, y: 82 });
+  if (line1Chars.length) {
+    gsap.set(line1Chars, {
+      opacity: 0,
+      yPercent: -115,
+      rotateX: 82,
+      rotateZ: -6,
+      scale: 1.45,
+      filter: "blur(24px)"
+    });
+  } else {
+    gsap.set(realLine1, { opacity: 0, filter: "blur(38px)", scale: 1.68, y: -82 });
+  }
+  if (line2Chars.length) {
+    gsap.set(line2Chars, {
+      opacity: 0,
+      yPercent: 115,
+      rotateX: -82,
+      rotateZ: 8,
+      scale: 1.55,
+      filter: "blur(26px)"
+    });
+  } else {
+    gsap.set(realLine2, { opacity: 0, filter: "blur(38px)", scale: 1.68, y: 88 });
+  }
   gsap.set(realBottom, { opacity: 0, filter: "blur(26px)", scale: 0.88, y: 115 });
 
   const syncIntroPhases = (t) => {
@@ -408,7 +441,92 @@ if (introPinnedEl) {
     if (phase2El) phase2El.style.visibility = t >= 2.15 && t <= 6.3 ? "visible" : "hidden";
     if (phase3El) phase3El.style.visibility = t >= 5.45 && t <= 9.6 ? "visible" : "hidden";
     if (realHero) realHero.style.visibility = t >= 8.0 ? "visible" : "hidden";
-    setIntroHeaderVisibility(t >= 9.2);
+    setIntroHeaderVisibility(t >= 9.3);
+  };
+
+  const activateInteractiveHeroAnimations = () => {
+    // 1. Subtle interactive cursor depth parallax & character wave on the live Real Hero
+    if (window.matchMedia("(min-width: 992px)").matches && realHero) {
+      const xLine1 = gsap.quickTo(realLine1, "x", { duration: 0.9, ease: "power3.out" });
+      const yLine1 = gsap.quickTo(realLine1, "y", { duration: 0.9, ease: "power3.out" });
+      const xLine2 = gsap.quickTo(realLine2, "x", { duration: 1.05, ease: "power3.out" });
+      const yLine2 = gsap.quickTo(realLine2, "y", { duration: 1.05, ease: "power3.out" });
+      const xLogo = gsap.quickTo(realLogo, "x", { duration: 1.25, ease: "power3.out" });
+      const yLogo = gsap.quickTo(realLogo, "y", { duration: 1.25, ease: "power3.out" });
+
+      realHero.addEventListener("mousemove", (e) => {
+        const nx = e.clientX / window.innerWidth - 0.5;
+        const ny = e.clientY / window.innerHeight - 0.5;
+        xLine1(nx * -22);
+        yLine1(ny * -12);
+        xLine2(nx * 26);
+        yLine2(ny * 14);
+        xLogo(nx * 36);
+        yLogo(ny * -24);
+      });
+
+      realHero.addEventListener("mouseleave", () => {
+        xLine1(0);
+        yLine1(0);
+        xLine2(0);
+        yLine2(0);
+        xLogo(0);
+        yLogo(0);
+      });
+
+      const titleContainer = introPinnedEl.querySelector(".fgyb-real-title");
+      if (titleContainer && (line1Chars.length || line2Chars.length)) {
+        let wavePlaying = false;
+        titleContainer.addEventListener("mouseenter", () => {
+          if (wavePlaying) return;
+          wavePlaying = true;
+          gsap.fromTo(
+            [line1Chars, line2Chars],
+            { yPercent: 0, scale: 1 },
+            {
+              yPercent: -14,
+              scale: 1.06,
+              duration: 0.34,
+              ease: "sine.out",
+              yoyo: true,
+              repeat: 1,
+              stagger: { each: 0.022, from: "start" },
+              onComplete: () => {
+                wavePlaying = false;
+              }
+            }
+          );
+        });
+      }
+    }
+
+    // 2. Scroll-out parallax for "Juntos por un / mejor mañana" when scrolling down into #programas
+    const heroHeadlineWrap = introPinnedEl.querySelector(".mxd-hero-08__headline");
+    if (heroHeadlineWrap) {
+      const heroScrollOutTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: introPinnedEl,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.6
+        }
+      });
+      heroScrollOutTl.to(
+        realLine1,
+        { xPercent: -8, y: -55, scale: 0.94, opacity: 0.25, ease: "none" },
+        0
+      );
+      heroScrollOutTl.to(
+        realLine2,
+        { xPercent: 8, y: -35, scale: 1.06, opacity: 0.25, ease: "none" },
+        0
+      );
+      heroScrollOutTl.to(
+        realLogo,
+        { y: -85, scale: 1.22, ease: "none" },
+        0
+      );
+    }
   };
 
   const completeAndLockIntro = () => {
@@ -436,9 +554,10 @@ if (introPinnedEl) {
     }
 
     // 3. Clear all inline GSAP styles so the Real Hero stays 100% visible in its native CSS state
-    gsap.set([introPinnedEl, realHero, realLogo, realEmblemImg, realLine1, realLine2, realBottom], {
-      clearProps: "all"
-    });
+    gsap.set(
+      [introPinnedEl, realHero, realLogo, realEmblemImg, realLine1, realLine2, realBottom, line1Chars, line2Chars],
+      { clearProps: "all" }
+    );
     if (realHero) {
       realHero.style.visibility = "visible";
       realHero.style.opacity = "1";
@@ -451,6 +570,9 @@ if (introPinnedEl) {
     if (typeof lenis !== "undefined") {
       lenis.scrollTo(targetY, { immediate: true });
     }
+
+    // 5. Activate live interactive & scroll-out animations on "Juntos por un mejor mañana"
+    activateInteractiveHeroAnimations();
     ScrollTrigger.refresh();
   };
 
@@ -571,28 +693,63 @@ if (introPinnedEl) {
   );
   introTl.to(
     realLogo,
-    { scale: 1, duration: 1.15, ease: "power2.inOut" },
-    9.35
+    { scale: 1, duration: 1.2, ease: "power2.inOut" },
+    9.45
   );
   if (realEmblemImg) {
     introTl.to(
       realEmblemImg,
-      { opacity: 0.2, duration: 1.15, ease: "power2.inOut" },
-      9.35
+      { opacity: 0.2, duration: 1.2, ease: "power2.inOut" },
+      9.45
     );
   }
 
-  // Stage C: Real Hero headline lines converge from above & below over the emblem
+  // Stage C: 3D Character-by-Character Sculptural Wave Reveal of "Juntos por un / mejor mañana"
   introTl.to(
     realLine1,
-    { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.55, ease: "expo.out" },
-    8.85
+    { scale: 1, y: 0, duration: 1.65, ease: "expo.out" },
+    8.75
   );
+  if (line1Chars.length) {
+    introTl.to(
+      line1Chars,
+      {
+        opacity: 1,
+        yPercent: 0,
+        rotateX: 0,
+        rotateZ: 0,
+        scale: 1,
+        filter: "blur(0px)",
+        duration: 1.15,
+        stagger: { each: 0.04, from: "center" },
+        ease: "expo.out"
+      },
+      8.75
+    );
+  }
+
   introTl.to(
     realLine2,
-    { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.55, ease: "expo.out" },
-    9.05
+    { scale: 1, y: 0, duration: 1.75, ease: "expo.out" },
+    9.0
   );
+  if (line2Chars.length) {
+    introTl.to(
+      line2Chars,
+      {
+        opacity: 1,
+        yPercent: 0,
+        rotateX: 0,
+        rotateZ: 0,
+        scale: 1,
+        filter: "blur(0px)",
+        duration: 1.25,
+        stagger: { each: 0.045, from: "edges" },
+        ease: "expo.out"
+      },
+      9.0
+    );
+  }
 
   introTl.to(
     realBottom,
@@ -604,7 +761,7 @@ if (introPinnedEl) {
       duration: 1.35,
       ease: "expo.out"
     },
-    9.35
+    9.5
   );
 
   // Brief hold at 100% completion so scrub settles before onLeave unpins

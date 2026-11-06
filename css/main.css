@@ -22126,3 +22126,26 @@ h3 em,
           box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
   background: #000;
 }
+
+.fgyb-real-title h1 {
+  -webkit-perspective: 1100px;
+     -moz-perspective: 1100px;
+          perspective: 1100px;
+}
+
+.fgyb-real-title .word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.fgyb-real-title .char {
+  display: inline-block;
+  will-change: transform, opacity, filter;
+  -webkit-transform-origin: 50% 50%;
+     -moz-transform-origin: 50% 50%;
+      -ms-transform-origin: 50% 50%;
+          transform-origin: 50% 50%;
+  -webkit-backface-visibility: hidden;
+     -moz-backface-visibility: hidden;
+          backface-visibility: hidden;
+}
