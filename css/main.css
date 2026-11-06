@@ -21494,17 +21494,16 @@ textarea {
 }
 
 .mxd-nav__contain {
-  -webkit-transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.65s, -webkit-transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.65s, -webkit-transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-  -moz-transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.65s, -moz-transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.65s;
-  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.65s, -webkit-transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), -moz-transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  -webkit-transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), -webkit-transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), -webkit-transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  -moz-transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), -moz-transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), -webkit-transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), -moz-transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .mxd-header.is-intro-hidden,
 .mxd-nav__contain.is-intro-hidden {
   opacity: 0 !important;
-  visibility: hidden !important;
   pointer-events: none !important;
   -webkit-transform: translateY(-2.4rem) !important;
      -moz-transform: translateY(-2.4rem) !important;
