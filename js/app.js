@@ -110,8 +110,10 @@ function pageAppearance() {
     delay: 0.7,
     stagger: 0.14
   }, '>-=1.1');
-  gsap.set(fadeInItems, { opacity: 0 });
-  gsap.to(fadeInItems, { duration: 0.9, ease: 'power2.out', opacity: 1, delay: 3.0 });
+  if (fadeInItems.length) {
+    gsap.set(fadeInItems, { opacity: 0 });
+    gsap.to(fadeInItems, { duration: 0.9, ease: 'power2.out', opacity: 1, delay: 3.0 });
+  }
 }
 // --------------------------------------------- //
 // Loader & Loading Animation End
@@ -160,8 +162,14 @@ $(window).on("scroll", function() {
   // --------------------------------------------- //
   // Header Scroll Behavior Start
   // --------------------------------------------- //
-  if($(window).scrollTop() > 10) {
-      $(".mxd-header").addClass("is-hidden");
+  var scrollTop = $(window).scrollTop();
+  var hideThreshold = 10;
+  var introSection = document.getElementById("inicio");
+  if (introSection) {
+    hideThreshold = Math.max(10, introSection.offsetHeight - window.innerHeight * 0.35);
+  }
+  if (scrollTop > hideThreshold) {
+    $(".mxd-header").addClass("is-hidden");
   } else {
     $(".mxd-header").removeClass("is-hidden");
   }
@@ -276,11 +284,12 @@ fadeOutEl.forEach((element) => {
 // --------------------------------------------- //
 const introPinnedEl = document.querySelector(".fgyb-intro-pinned");
 if (introPinnedEl) {
+  const headerEl = document.querySelector(".mxd-header");
+  const navContainEl = document.querySelector(".mxd-nav__contain");
   const phase2El = introPinnedEl.querySelector(".is-phase-2");
   const phase3El = introPinnedEl.querySelector(".is-phase-3");
 
   // Phase 1 elements
-  const p1Mark = introPinnedEl.querySelector(".is-phase-1 .fgyb-intro-mark");
   const p1Line1 = introPinnedEl.querySelector(".is-phase-1 .fgyb-line-1");
   const p1Line2 = introPinnedEl.querySelector(".is-phase-1 .fgyb-line-2");
   const p1Sub = introPinnedEl.querySelector(".is-phase-1 .fgyb-intro-sub");
@@ -289,7 +298,6 @@ if (introPinnedEl) {
   const p1Photos = introPinnedEl.querySelectorAll(".is-phase-1 .fgyb-p-photo");
 
   // Phase 2 elements
-  const p2Mark = introPinnedEl.querySelector(".is-phase-2 .fgyb-intro-mark");
   const p2Line1 = introPinnedEl.querySelector(".is-phase-2 .fgyb-line-1");
   const p2Line2 = introPinnedEl.querySelector(".is-phase-2 .fgyb-line-2");
   const p2Sub = introPinnedEl.querySelector(".is-phase-2 .fgyb-intro-sub");
@@ -298,7 +306,6 @@ if (introPinnedEl) {
   const p2Photos = introPinnedEl.querySelectorAll(".is-phase-2 .fgyb-p-photo");
 
   // Phase 3 elements
-  const p3Mark = introPinnedEl.querySelector(".is-phase-3 .fgyb-intro-mark");
   const p3Line1 = introPinnedEl.querySelector(".is-phase-3 .fgyb-line-1");
   const p3Line2 = introPinnedEl.querySelector(".is-phase-3 .fgyb-line-2");
   const p3Sub = introPinnedEl.querySelector(".is-phase-3 .fgyb-intro-sub");
@@ -313,15 +320,26 @@ if (introPinnedEl) {
   const realLine2 = introPinnedEl.querySelector(".fgyb-real-line-2");
   const realBottom = introPinnedEl.querySelector(".fgyb-real-bottom");
 
+  const setIntroHeaderVisibility = (showHeader) => {
+    if (showHeader) {
+      if (headerEl) headerEl.classList.remove("is-intro-hidden");
+      if (navContainEl) navContainEl.classList.remove("is-intro-hidden");
+      if (realHero) realHero.style.pointerEvents = "auto";
+    } else {
+      if (headerEl) headerEl.classList.add("is-intro-hidden");
+      if (navContainEl) navContainEl.classList.add("is-intro-hidden");
+      if (realHero) realHero.style.pointerEvents = "none";
+    }
+  };
+
   gsap.set([phase2El, phase3El], { opacity: 1 });
 
   // Initial states: Phase 1 ready on stage
-  gsap.set(p1LeftImg, { opacity: 0.56, filter: "blur(0px)", yPercent: 22, scale: 0.94, rotation: -2 });
-  gsap.set(p1RightImg, { opacity: 0.5, filter: "blur(0px)", yPercent: 34, scale: 0.9, rotation: 2.2 });
+  gsap.set(p1LeftImg, { opacity: 0.52, filter: "blur(0px)", yPercent: 22, scale: 0.94, rotation: -2 });
+  gsap.set(p1RightImg, { opacity: 0.48, filter: "blur(0px)", yPercent: 34, scale: 0.9, rotation: 2.2 });
   gsap.set(p1Photos, { scale: 1.22, yPercent: -8 });
 
   // Initial states: Phase 2 & 3 waiting in deep optical blur
-  gsap.set([p2Mark, p3Mark], { opacity: 0, filter: "blur(16px)", y: 34, scale: 1.06 });
   gsap.set([p2Line1, p2Line2, p3Line1, p3Line2], { opacity: 0, filter: "blur(24px)", y: 48, scale: 1.1 });
   gsap.set([p2Sub, p3Sub], { opacity: 0, filter: "blur(18px)", y: 36, scale: 1.04 });
 
@@ -343,7 +361,16 @@ if (introPinnedEl) {
       end: "+=330%",
       pin: true,
       scrub: 1.1,
-      invalidateOnRefresh: true
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        setIntroHeaderVisibility(self.progress >= 0.8);
+      },
+      onLeave: () => {
+        setIntroHeaderVisibility(true);
+      },
+      onLeaveBack: () => {
+        setIntroHeaderVisibility(false);
+      }
     }
   });
 
@@ -358,49 +385,45 @@ if (introPinnedEl) {
   introTl.to([p1Line1, p1Line2], { y: -8, scale: 0.985, duration: 1.5, ease: "sine.inOut" }, 0);
 
   // Staggered dissolve out of Phase 1
-  introTl.to(p1Mark, { opacity: 0, filter: "blur(16px)", y: -28, scale: 0.94, duration: 1.1, ease: "power2.inOut" }, 1.5);
-  introTl.to(p1Line1, { opacity: 0, filter: "blur(24px)", y: -38, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 1.62);
-  introTl.to(p1Line2, { opacity: 0, filter: "blur(24px)", y: -34, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 1.74);
-  introTl.to(p1Sub, { opacity: 0, filter: "blur(18px)", y: -26, scale: 0.95, duration: 1.1, ease: "power2.inOut" }, 1.84);
-  introTl.to([p1LeftImg, p1RightImg], { opacity: 0, filter: "blur(18px)", duration: 1.1, ease: "power2.inOut" }, 1.75);
+  introTl.to(p1Line1, { opacity: 0, filter: "blur(24px)", y: -38, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 1.55);
+  introTl.to(p1Line2, { opacity: 0, filter: "blur(24px)", y: -34, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 1.68);
+  introTl.to(p1Sub, { opacity: 0, filter: "blur(18px)", y: -26, scale: 0.95, duration: 1.1, ease: "power2.inOut" }, 1.8);
+  introTl.to([p1LeftImg, p1RightImg], { opacity: 0, filter: "blur(18px)", duration: 1.1, ease: "power2.inOut" }, 1.7);
 
   // ==========================================
   // PHASE 2: Staggered emergence, asymmetric parallax & dissolve
   // ==========================================
-  introTl.to(p2LeftImg, { opacity: 0.58, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 2.25);
-  introTl.to(p2RightImg, { opacity: 0.52, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 2.4);
+  introTl.to(p2LeftImg, { opacity: 0.54, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 2.25);
+  introTl.to(p2RightImg, { opacity: 0.48, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 2.4);
   introTl.to(p2LeftImg, { yPercent: -34, scale: 1.06, rotation: 1.4, duration: 3.8, ease: "none" }, 2.2);
   introTl.to(p2RightImg, { yPercent: -48, scale: 1.08, rotation: -1.6, duration: 3.8, ease: "none" }, 2.2);
   introTl.to(p2Photos, { scale: 1.0, yPercent: 10, duration: 3.8, ease: "none" }, 2.2);
 
-  introTl.to(p2Mark, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.15, ease: "power3.out" }, 2.2);
-  introTl.to(p2Line1, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 2.34);
-  introTl.to(p2Line2, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 2.48);
-  introTl.to(p2Sub, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.2, ease: "power3.out" }, 2.62);
+  introTl.to(p2Line1, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 2.26);
+  introTl.to(p2Line2, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 2.42);
+  introTl.to(p2Sub, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.2, ease: "power3.out" }, 2.58);
 
   // Subtle living float while reading Phase 2
   introTl.to([p2Line1, p2Line2], { y: -8, scale: 0.985, duration: 1.2, ease: "sine.inOut" }, 3.65);
 
   // Staggered dissolve out of Phase 2
-  introTl.to(p2Mark, { opacity: 0, filter: "blur(16px)", y: -28, scale: 0.94, duration: 1.1, ease: "power2.inOut" }, 4.8);
-  introTl.to(p2Line1, { opacity: 0, filter: "blur(24px)", y: -38, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 4.92);
-  introTl.to(p2Line2, { opacity: 0, filter: "blur(24px)", y: -34, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 5.04);
-  introTl.to(p2Sub, { opacity: 0, filter: "blur(18px)", y: -26, scale: 0.95, duration: 1.1, ease: "power2.inOut" }, 5.14);
-  introTl.to([p2LeftImg, p2RightImg], { opacity: 0, filter: "blur(18px)", duration: 1.1, ease: "power2.inOut" }, 5.05);
+  introTl.to(p2Line1, { opacity: 0, filter: "blur(24px)", y: -38, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 4.88);
+  introTl.to(p2Line2, { opacity: 0, filter: "blur(24px)", y: -34, scale: 0.92, duration: 1.15, ease: "power2.inOut" }, 5.0);
+  introTl.to(p2Sub, { opacity: 0, filter: "blur(18px)", y: -26, scale: 0.95, duration: 1.1, ease: "power2.inOut" }, 5.12);
+  introTl.to([p2LeftImg, p2RightImg], { opacity: 0, filter: "blur(18px)", duration: 1.1, ease: "power2.inOut" }, 5.02);
 
   // ==========================================
   // PHASE 3: Staggered emergence & in-place morph dissolve into Real Hero
   // ==========================================
-  introTl.to(p3LeftImg, { opacity: 0.58, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 5.55);
-  introTl.to(p3RightImg, { opacity: 0.52, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 5.7);
+  introTl.to(p3LeftImg, { opacity: 0.54, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 5.55);
+  introTl.to(p3RightImg, { opacity: 0.48, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 5.7);
   introTl.to(p3LeftImg, { yPercent: -34, scale: 1.06, rotation: 1.4, duration: 3.8, ease: "none" }, 5.5);
   introTl.to(p3RightImg, { yPercent: -48, scale: 1.08, rotation: -1.6, duration: 3.8, ease: "none" }, 5.5);
   introTl.to(p3Photos, { scale: 1.0, yPercent: 10, duration: 3.8, ease: "none" }, 5.5);
 
-  introTl.to(p3Mark, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.15, ease: "power3.out" }, 5.5);
-  introTl.to(p3Line1, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 5.64);
-  introTl.to(p3Line2, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 5.78);
-  introTl.to(p3Sub, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.2, ease: "power3.out" }, 5.92);
+  introTl.to(p3Line1, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 5.56);
+  introTl.to(p3Line2, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 5.72);
+  introTl.to(p3Sub, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.2, ease: "power3.out" }, 5.88);
 
   // Subtle living float while reading Phase 3
   introTl.to([p3Line1, p3Line2], { y: -6, scale: 0.99, duration: 1.1, ease: "sine.inOut" }, 7.0);
@@ -408,7 +431,6 @@ if (introPinnedEl) {
   // ==========================================
   // FINAL CINEMATIC MORPH-DISSOLVE INTO REAL LOGO & HERO HEADLINE
   // ==========================================
-  introTl.to(p3Mark, { opacity: 0, filter: "blur(16px)", y: -20, scale: 0.95, duration: 1.1, ease: "power2.inOut" }, 8.0);
   introTl.to(p3Sub, { opacity: 0, filter: "blur(18px)", y: 16, scale: 0.96, duration: 1.1, ease: "power2.inOut" }, 8.0);
   introTl.to([p3LeftImg, p3RightImg], { opacity: 0, filter: "blur(20px)", duration: 1.2, ease: "power2.inOut" }, 8.0);
 
@@ -428,13 +450,7 @@ if (introPinnedEl) {
       filter: "blur(0px)",
       y: 0,
       duration: 1.3,
-      ease: "power3.out",
-      onStart: () => {
-        realHero.style.pointerEvents = "auto";
-      },
-      onReverseComplete: () => {
-        realHero.style.pointerEvents = "none";
-      }
+      ease: "power3.out"
     },
     9.1
   );
