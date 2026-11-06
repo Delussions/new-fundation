@@ -165,17 +165,7 @@ function pageAppearance() {
 // Lenis Scroll Plugin Start
 // --------------------------------------------- //
 const isTouchOrMobile = window.matchMedia("(pointer: coarse), (max-width: 1199px)").matches;
-const lenis = new Lenis(
-  isTouchOrMobile
-    ? {
-        syncTouch: true,
-        syncTouchLerp: 0.06,
-        touchInertiaMultiplier: 10,
-        touchMultiplier: 0.48,
-        lerp: 0.075
-      }
-    : {}
-);
+const lenis = new Lenis();
 lenis.scrollTo(0, { immediate: true });
 lenis.stop();
 lenis.on('scroll', ScrollTrigger.update);
@@ -669,13 +659,6 @@ if (introPinnedEl) {
     // 4. Offset scroll synchronously by the exact removed pin-spacer height (0.00px visual shift)
     window.scrollTo(0, targetY);
     if (typeof lenis !== "undefined") {
-      if (isTouchOrMobile && lenis.options) {
-        lenis.options.touchMultiplier = 0.85;
-        lenis.options.touchInertiaMultiplier = 18;
-        if (lenis.virtualScroll && lenis.virtualScroll.options) {
-          lenis.virtualScroll.options.touchMultiplier = 0.85;
-        }
-      }
       lenis.scrollTo(targetY, { immediate: true });
     }
 
@@ -688,9 +671,9 @@ if (introPinnedEl) {
     scrollTrigger: {
       trigger: introPinnedEl,
       start: "top top",
-      end: isTouchOrMobile ? "+=600%" : "+=340%",
+      end: isTouchOrMobile ? "+=410%" : "+=340%",
       pin: true,
-      scrub: isTouchOrMobile ? 1.5 : 0.75,
+      scrub: isTouchOrMobile ? 1.0 : 0.75,
       invalidateOnRefresh: true,
       onUpdate: () => {
         if (window.__fgybIntroLocked) return;
