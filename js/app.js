@@ -72,6 +72,27 @@ window.addEventListener("beforeunload", function () {
   window.scrollTo(0, 0);
 });
 
+// Permanently mute all videos across the entire site (background, menu, preview & popup)
+function forceMuteVideo(v) {
+  if (!v || v.tagName !== "VIDEO") return;
+  v.muted = true;
+  v.defaultMuted = true;
+  v.volume = 0;
+  v.setAttribute("muted", "muted");
+}
+document.querySelectorAll("video").forEach(forceMuteVideo);
+["play", "playing", "volumechange", "loadedmetadata", "canplay"].forEach(function (evt) {
+  document.addEventListener(
+    evt,
+    function (e) {
+      if (e.target && e.target.tagName === "VIDEO") {
+        forceMuteVideo(e.target);
+      }
+    },
+    true
+  );
+});
+
 // --------------------------------------------- //
 // Loader & Loading Animation Start
 // --------------------------------------------- //
@@ -184,14 +205,12 @@ $(window).on("scroll", function() {
   // --------------------------------------------- //
   // Header Scroll Behavior Start
   // --------------------------------------------- //
-  var scrollTop = $(window).scrollTop();
-  var hideThreshold = 10;
-  var introSection = document.getElementById("inicio");
-  if (introSection) {
-    hideThreshold = Math.max(10, introSection.offsetHeight - window.innerHeight * 0.35);
-  }
-  if (scrollTop > hideThreshold) {
-    $(".mxd-header").addClass("is-hidden");
+  if (window.__fgybIntroLocked) {
+    if ($(window).scrollTop() > 50) {
+      $(".mxd-header").addClass("is-hidden");
+    } else {
+      $(".mxd-header").removeClass("is-hidden");
+    }
   } else {
     $(".mxd-header").removeClass("is-hidden");
   }
@@ -374,17 +393,64 @@ if (introPinnedEl) {
 
   // Initial states: Real Hero waiting to crystallize at exact center
   gsap.set(realHero, { pointerEvents: "none" });
-  gsap.set(realLogo, { opacity: 0, filter: "blur(28px)", scale: 1.22, y: 10 });
-  gsap.set(realLine1, { opacity: 0, filter: "blur(26px)", scale: 1.12, y: 18 });
-  gsap.set(realLine2, { opacity: 0, filter: "blur(26px)", scale: 1.12, y: 24 });
-  gsap.set(realBottom, { opacity: 0, filter: "blur(16px)", y: 42 });
+  gsap.set(realLogo, { opacity: 0, filter: "blur(42px)", scale: 1.78, rotation: -8, y: 16 });
+  gsap.set(realLine1, { opacity: 0, filter: "blur(36px)", scale: 1.38, y: 52 });
+  gsap.set(realLine2, { opacity: 0, filter: "blur(36px)", scale: 1.38, y: 64 });
+  gsap.set(realBottom, { opacity: 0, filter: "blur(24px)", scale: 0.94, y: 72 });
 
   const syncIntroPhases = (t) => {
+    if (window.__fgybIntroLocked) return;
     if (phase1El) phase1El.style.visibility = t <= 3.0 ? "visible" : "hidden";
     if (phase2El) phase2El.style.visibility = t >= 2.15 && t <= 6.3 ? "visible" : "hidden";
-    if (phase3El) phase3El.style.visibility = t >= 5.45 && t <= 9.8 ? "visible" : "hidden";
-    if (realHero) realHero.style.visibility = t >= 8.2 ? "visible" : "hidden";
-    setIntroHeaderVisibility(t >= 8.4);
+    if (phase3El) phase3El.style.visibility = t >= 5.45 && t <= 9.85 ? "visible" : "hidden";
+    if (realHero) realHero.style.visibility = t >= 8.05 ? "visible" : "hidden";
+    setIntroHeaderVisibility(t >= 8.35);
+  };
+
+  const completeAndLockIntro = () => {
+    if (window.__fgybIntroLocked) return;
+    window.__fgybIntroLocked = true;
+
+    requestAnimationFrame(() => {
+      if (typeof lenis !== "undefined") {
+        lenis.stop();
+      }
+
+      const introStageEl = introPinnedEl.querySelector(".fgyb-intro-stage");
+      if (introStageEl) {
+        introStageEl.style.display = "none";
+        introStageEl.remove();
+      }
+
+      if (realHero) {
+        realHero.style.visibility = "visible";
+        realHero.style.pointerEvents = "auto";
+      }
+      gsap.set(realLogo, { opacity: 1, filter: "blur(0px)", scale: 1, rotation: 0, y: 0, clearProps: "filter" });
+      gsap.set([realLine1, realLine2], { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, clearProps: "filter" });
+      gsap.set(realBottom, { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, clearProps: "filter" });
+      setIntroHeaderVisibility(true);
+
+      if (introTl && introTl.scrollTrigger) {
+        introTl.scrollTrigger.kill(true);
+      }
+      if (introTl) {
+        introTl.kill();
+      }
+      gsap.set(introPinnedEl, { clearProps: "all" });
+
+      window.scrollTo(0, 0);
+      if (typeof lenis !== "undefined") {
+        lenis.scrollTo(0, { immediate: true });
+      }
+      ScrollTrigger.refresh();
+
+      setTimeout(() => {
+        if (typeof lenis !== "undefined") {
+          lenis.start();
+        }
+      }, 60);
+    });
   };
 
   const introTl = gsap.timeline({
@@ -393,16 +459,22 @@ if (introPinnedEl) {
       start: "top top",
       end: "+=330%",
       pin: true,
-      scrub: 1.1,
+      scrub: 1.05,
       invalidateOnRefresh: true,
-      onUpdate: () => {
+      onUpdate: (self) => {
+        if (window.__fgybIntroLocked) return;
         syncIntroPhases(introTl.time());
+        if (self.progress >= 0.985) {
+          completeAndLockIntro();
+        }
       },
       onLeave: () => {
-        syncIntroPhases(11.7);
+        completeAndLockIntro();
       },
       onLeaveBack: () => {
-        syncIntroPhases(0);
+        if (!window.__fgybIntroLocked) {
+          syncIntroPhases(0);
+        }
       }
     }
   });
@@ -446,50 +518,83 @@ if (introPinnedEl) {
   introTl.to([p2LeftImg, p2RightImg], { opacity: 0, filter: "blur(18px)", duration: 1.1, ease: "power2.inOut" }, 5.02);
 
   // ==========================================
-  // PHASE 3: Staggered emergence & in-place morph dissolve into Real Hero
+  // PHASE 3: Staggered emergence & intensified morph into Real Hero
   // ==========================================
   introTl.to(p3LeftImg, { opacity: 0.54, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 5.55);
   introTl.to(p3RightImg, { opacity: 0.48, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, 5.7);
-  introTl.to(p3LeftImg, { yPercent: -34, scale: 1.06, rotation: 1.4, duration: 3.8, ease: "none" }, 5.5);
-  introTl.to(p3RightImg, { yPercent: -48, scale: 1.08, rotation: -1.6, duration: 3.8, ease: "none" }, 5.5);
-  introTl.to(p3Photos, { scale: 1.0, yPercent: 10, duration: 3.8, ease: "none" }, 5.5);
+  introTl.to(p3LeftImg, { yPercent: -18, scale: 1.03, rotation: 0.8, duration: 2.3, ease: "none" }, 5.5);
+  introTl.to(p3RightImg, { yPercent: -26, scale: 1.04, rotation: -0.9, duration: 2.3, ease: "none" }, 5.5);
+  introTl.to(p3Photos, { scale: 1.06, yPercent: 4, duration: 2.3, ease: "none" }, 5.5);
 
   introTl.to(p3Line1, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 5.56);
   introTl.to(p3Line2, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.25, ease: "power3.out" }, 5.72);
   introTl.to(p3Sub, { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, duration: 1.2, ease: "power3.out" }, 5.88);
 
   // Subtle living float while reading Phase 3
-  introTl.to([p3Line1, p3Line2], { y: -6, scale: 0.99, duration: 1.1, ease: "sine.inOut" }, 7.0);
+  introTl.to([p3Line1, p3Line2], { y: -6, scale: 0.99, duration: 0.9, ease: "sine.inOut" }, 6.9);
 
   // ==========================================
-  // FINAL CINEMATIC MORPH-DISSOLVE INTO REAL LOGO & HERO HEADLINE
+  // INTENSIFIED FINAL CINEMATIC TRANSITION INTO REAL INTERACTIVE HERO
   // ==========================================
-  introTl.to(p3Sub, { opacity: 0, filter: "blur(18px)", y: 16, scale: 0.96, duration: 1.1, ease: "power2.inOut" }, 8.0);
-  introTl.to([p3LeftImg, p3RightImg], { opacity: 0, filter: "blur(20px)", duration: 1.2, ease: "power2.inOut" }, 8.0);
+  // Dramatic camera fly-through acceleration on Phase 3 parallax frames
+  introTl.to(
+    p3LeftImg,
+    { opacity: 0, filter: "blur(34px)", yPercent: -82, scale: 1.34, rotation: 5, duration: 1.65, ease: "power3.inOut" },
+    7.8
+  );
+  introTl.to(
+    p3RightImg,
+    { opacity: 0, filter: "blur(34px)", yPercent: -96, scale: 1.38, rotation: -5, duration: 1.65, ease: "power3.inOut" },
+    7.85
+  );
+  introTl.to(p3Photos, { scale: 0.92, yPercent: 16, duration: 1.65, ease: "power2.inOut" }, 7.8);
 
-  // Phase 3 headline lines dissolve in place at exact center (y: 0)
-  introTl.to(p3Line1, { opacity: 0, filter: "blur(28px)", scale: 0.93, y: 0, duration: 1.4, ease: "power2.inOut" }, 8.15);
-  introTl.to(p3Line2, { opacity: 0, filter: "blur(28px)", scale: 0.93, y: 0, duration: 1.4, ease: "power2.inOut" }, 8.28);
+  // Deep optical pull on Phase 3 text right at the exact center
+  introTl.to(
+    p3Sub,
+    { opacity: 0, filter: "blur(26px)", y: 34, scale: 0.84, duration: 1.3, ease: "power3.inOut" },
+    7.85
+  );
+  introTl.to(
+    p3Line1,
+    { opacity: 0, filter: "blur(38px)", scale: 0.72, y: -14, duration: 1.6, ease: "power3.inOut" },
+    7.95
+  );
+  introTl.to(
+    p3Line2,
+    { opacity: 0, filter: "blur(38px)", scale: 0.72, y: 14, duration: 1.6, ease: "power3.inOut" },
+    8.1
+  );
 
-  // Real Foundation Emblem & Real Headline crystallize directly out of Phase 3's optical blur
-  introTl.to(realLogo, { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.55, ease: "power3.out" }, 8.35);
-  introTl.to(realLine1, { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.5, ease: "power3.out" }, 8.5);
-  introTl.to(realLine2, { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.5, ease: "power3.out" }, 8.66);
+  // Grand emergence of Real Foundation Emblem & Real Headline from deep optical focus
+  introTl.to(
+    realLogo,
+    { opacity: 1, filter: "blur(0px)", scale: 1, rotation: 0, y: 0, duration: 1.85, ease: "expo.out" },
+    8.15
+  );
+  introTl.to(
+    realLine1,
+    { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.75, ease: "expo.out" },
+    8.35
+  );
+  introTl.to(
+    realLine2,
+    { opacity: 1, filter: "blur(0px)", scale: 1, y: 0, duration: 1.75, ease: "expo.out" },
+    8.55
+  );
 
   introTl.to(
     realBottom,
     {
       opacity: 1,
       filter: "blur(0px)",
+      scale: 1,
       y: 0,
-      duration: 1.3,
+      duration: 1.5,
       ease: "power3.out"
     },
-    9.1
+    8.85
   );
-
-  // Hold on the completed interactive Hero before unpinning
-  introTl.to({}, { duration: 1.3 });
 }
 // --------------------------------------------- //
 // Hero #08 Multi-Phase Scroll Intro & Dissolve End
@@ -755,8 +860,23 @@ $(function() {
     removalDelay: 160,
     preloader: false,
     fixedContentPos: false,
+    iframe: {
+      markup:
+        '<div class="mfp-iframe-scaler">' +
+        '<div class="mfp-close"></div>' +
+        '<video class="mfp-iframe fgyb-muted-popup-video" autoplay loop muted playsinline></video>' +
+        '</div>'
+    },
     callbacks: {
       beforeOpen: function() { $('body').addClass('overflow-hidden'); lenis.stop(); },
+      open: function() {
+        var popupVid = document.querySelector('.fgyb-muted-popup-video');
+        if (popupVid) {
+          forceMuteVideo(popupVid);
+          var playPromise = popupVid.play();
+          if (playPromise && playPromise.catch) playPromise.catch(function() {});
+        }
+      },
       close: function() { $('body').removeClass('overflow-hidden'); lenis.start(); }
     }
   });
