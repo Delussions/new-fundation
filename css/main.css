@@ -86,10 +86,10 @@
 /* ------------------------------------------------*/
 /* Fonts Start */
 /* ------------------------------------------------*/
-/* Funnel Display font */
-@import url("https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap");
-/* Funnel Sans font */
-@import url("https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap");
+/* Cormorant Garamond (Editorial Luxury Serif) */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap");
+/* Plus Jakarta Sans (Clean Humanist Sans) */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..700;1,300..700&display=swap");
 /* ------------------------------------------------*/
 /* Fonts End */
 /* ------------------------------------------------*/
@@ -98,8 +98,8 @@
 /* ------------------------------------------------*/
 :root {
   --_size: 1.8rem;
-  --_font-default: "Funnel Sans", sans-serif;
-  --_font-accent: "Funnel Display", sans-serif;
+  --_font-default: "Plus Jakarta Sans", sans-serif;
+  --_font-accent: "Cormorant Garamond", Georgia, serif;
   --_radius-s: 1rem;
   --_radius-m: 1.6rem;
   --_radius-pt-m: 1.6rem;
@@ -21462,12 +21462,94 @@ form textarea:required:valid {
   color: var(--t-bright);
 }
 
-/* Scroll-Driven Multi-Phase Intro (Native Template Typography & Layout) */
+/* Elegant Editorial Typography Pairing (Cormorant Garamond + Plus Jakarta Sans) */
+body,
+p,
+.mxd-services-cards__info p,
+.btn-default,
+.tag,
+.mxd-hero__mark,
+.mxd-point-subtitle,
+.mxd-links-lines__title,
+.mxd-logo__text,
+.submenu__item a,
+.mxd-menu__caption,
+.menu-promo__caption,
+.footer-socials__link,
+.btn-rotating .btn-rotating__text text,
+input,
+textarea {
+  font-family: var(--_font-default);
+}
+
+h1,
+h2,
+h3,
+h4,
+.mxd-manifest,
+.marquee__text,
+.mxd-services-cards__title p,
+.mxd-stats-number,
+.loader__count span,
+.main-menu__link .btn-caption,
+.footer-nav__link .btn-caption,
+.footer-blocks__title-l,
+.footer-blocks__title-m {
+  font-family: var(--_font-accent);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  line-height: 1.02;
+}
+
+@media only screen and (min-width: 1200px) {
+  h1 {
+    font-size: 10.6rem;
+  }
+}
+
+@media only screen and (min-width: 1600px) {
+  h1 {
+    font-size: 12.8rem;
+  }
+}
+
+h1 em,
+h2 em,
+h3 em,
+.mxd-manifest em,
+.mxd-services-cards__title p em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.mxd-manifest {
+  line-height: 1.38;
+  font-weight: 500;
+}
+
+.mxd-services-cards__title p {
+  line-height: 1.06;
+  font-weight: 600;
+}
+
+.btn-default {
+  font-size: 1.8rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Scroll-Driven Multi-Phase Cinematic Intro (Native Template Typography & Layout) */
 .fgyb-intro-pinned {
   position: relative;
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  -webkit-perspective: 1200px;
+     -moz-perspective: 1200px;
+          perspective: 1200px;
 }
 
 .fgyb-intro-stage {
@@ -21501,7 +21583,6 @@ form textarea:required:valid {
   text-align: center;
 }
 
-.fgyb-intro-Phase:not(.is-phase-1),
 .fgyb-intro-phase.is-phase-2,
 .fgyb-intro-phase.is-phase-3 {
   opacity: 0;
@@ -21513,33 +21594,51 @@ form textarea:required:valid {
   width: 100%;
 }
 
+.fgyb-line {
+  display: block;
+  will-change: transform, opacity, filter;
+  -webkit-transform-origin: center center;
+     -moz-transform-origin: center center;
+      -ms-transform-origin: center center;
+          transform-origin: center center;
+}
+
 .fgyb-intro-mark {
   position: absolute;
   bottom: 100%;
-  left: 50%;
-  -webkit-transform: translateX(-50%);
-     -moz-transform: translateX(-50%);
-      -ms-transform: translateX(-50%);
-          transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 0 auto 2.6rem auto;
   -webkit-box-pack: center;
      -moz-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  margin-bottom: 2.2rem;
   white-space: nowrap;
+  will-change: transform, opacity, filter;
 }
 
 .fgyb-intro-sub {
   position: absolute;
   top: 100%;
-  left: 50%;
-  -webkit-transform: translateX(-50%);
-     -moz-transform: translateX(-50%);
-      -ms-transform: translateX(-50%);
-          transform: translateX(-50%);
+  left: 0;
+  right: 0;
   width: 88vw;
-  max-width: 620px;
-  margin-top: 2.4rem;
+  max-width: 600px;
+  margin: 2.8rem auto 0 auto;
+  font-size: 2rem;
+  line-height: 1.45;
+  font-weight: 400;
+  will-change: transform, opacity, filter;
+}
+
+@media only screen and (min-width: 1600px) {
+  .fgyb-intro-sub {
+    font-size: 2.2rem;
+    max-width: 660px;
+  }
 }
 
 .fgyb-intro-parallax {
@@ -21555,7 +21654,20 @@ form textarea:required:valid {
 .fgyb-p-img {
   position: absolute;
   display: none;
-  opacity: 0.35;
+  opacity: 0.5;
+  overflow: hidden;
+  -webkit-box-shadow: 0 28px 65px rgba(22, 22, 22, 0.14);
+     -moz-box-shadow: 0 28px 65px rgba(22, 22, 22, 0.14);
+          box-shadow: 0 28px 65px rgba(22, 22, 22, 0.14);
+  will-change: transform, opacity, filter;
+}
+
+.fgyb-p-img img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  will-change: transform;
 }
 
 @media only screen and (min-width: 992px) {
@@ -21564,19 +21676,19 @@ form textarea:required:valid {
   }
   .fgyb-p-left {
     left: 5%;
-    top: 16%;
+    top: 15%;
   }
   .fgyb-p-right {
     right: 5%;
-    bottom: 14%;
+    bottom: 13%;
   }
   .fgyb-p-left-low {
     left: 6%;
-    bottom: 14%;
+    bottom: 13%;
   }
   .fgyb-p-right-high {
     right: 6%;
-    top: 15%;
+    top: 14%;
   }
 }
 
