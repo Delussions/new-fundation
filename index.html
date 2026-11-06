@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" dir="ltr">
+<html lang="es" dir="ltr" color-scheme="light">
 
   <head>
     <meta charset="UTF-8">
@@ -37,21 +37,74 @@
     <!-- Template Styles End -->
 
     <!-- Custom Browser Color Start -->
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FAF7F6">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#161616">
-    <meta name="msapplication-navbutton-color" content="#161616">
+    <meta name="theme-color" content="#FAF7F6">
+    <meta name="msapplication-navbutton-color" content="#FAF7F6">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <!-- Custom Browser Color End -->
     
   </head>
 
   <body>
 
-    <!-- Loader Start -->
+    <!-- Loader Start (Cinematic Intro) -->
     <div id="loader" class="loader">
+      <div class="loader__curtain-accent"></div>
       <div class="loader__wrapper">
-        <div class="loader__content">
+        <div class="loader__ambient"></div>
+
+        <!-- Top Cinematic Bar -->
+        <div class="loader__topbar">
+          <div class="loader__brand">
+            <span class="loader__pulse"></span>
+            <span class="loader__brand-text">Fundación Género y Bienestar A.C.</span>
+          </div>
+          <div class="loader__location">Xicohtzinco, Tlaxcala • Donataria Autorizada</div>
+          <button id="loader-skip" class="loader__skip" type="button" aria-label="Saltar introducción">
+            <span>Saltar intro</span>
+            <i class="ph-bold ph-arrow-up-right"></i>
+          </button>
+        </div>
+
+        <!-- Centerpiece Documentary Stage -->
+        <div class="loader__stage">
+          <div class="loader__cinema-frame">
+            <div class="loader__reel">
+              <img src="img/resources/loader_1.jpeg" alt="Cultura y Comunidad en Tlaxcala" class="is-active">
+              <img src="img/resources/loader_2.jpeg" alt="Jornadas de Reforestación">
+              <img src="img/resources/loader_3.jpeg" alt="Más de 80,000 Árboles Plantados">
+              <img src="img/resources/loader_4.jpg" alt="Programa Segunda Oportunidad">
+              <img src="img/resources/loader_5.jpg" alt="Brigadas en La Malintzi">
+              <img src="img/resources/loader_6.jpg" alt="Unidad y Tradición en Tlaxcala">
+              <img src="img/resources/loader_7.jpg" alt="Voluntariado en Acción">
+            </div>
+            <div class="loader__vignette"></div>
+
+            <!-- Story Captions -->
+            <div class="loader__captions">
+              <p class="loader__caption is-active">Sembrando <strong>+80,000 árboles</strong> por el futuro de nuestra tierra</p>
+              <p class="loader__caption">Abrigando a <strong>+10,000 familias</strong> con salud, justicia y dignidad</p>
+              <p class="loader__caption">Porque cada gran cambio comienza cuando damos con el corazón</p>
+            </div>
+
+            <!-- Finale Emblem & Motto Reveal -->
+            <div class="loader__finale">
+              <img class="loader__finale-logo" src="img/resources/foundation-logo.png" alt="Fundación Género y Bienestar A.C.">
+              <span class="loader__finale-badge">Donataria Autorizada • RFC: FGB180804MD1</span>
+              <h2 class="loader__finale-title">Siempre da con amor</h2>
+              <p class="loader__finale-sub">Juntos por un mejor mañana</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Progress & Counter Bar -->
+        <div class="loader__bottombar">
+          <div class="loader__status">
+            <span class="loader__status-text">Nuestra historia en acción</span>
+          </div>
+          <div class="loader__progress">
+            <div class="loader__progress-bar"></div>
+          </div>
           <div class="loader__count">
             <span class="count__text">0</span>
             <span class="count__percent">%</span>
@@ -136,7 +189,7 @@
                           <a href="#ejes">Sustentabilidad (Agenda 2030)</a>
                         </li>
                         <li class="submenu__item">
-                          <a href="#ejes">Servicio Social y Alianzas (UTEL)</a>
+                          <a href="#ejes">Impulso Educativo y Servicio Social</a>
                         </li>
                         <li class="submenu__item">
                           <a href="#ejes">Asesoría Jurídica Profesional</a>
@@ -202,7 +255,6 @@
       </div>
       <!-- header controls -->
       <div class="mxd-header__controls loading__fade">
-        <button id="color-switcher" class="mxd-color-switcher" type="button" role="switch" aria-label="Modo claro/oscuro" aria-checked="true"></button>
         <a class="btn btn-anim btn-default btn-mobile-icon btn-outline slide-right-up" href="https://www.paypal.com/donate/?hosted_button_id=3TCPLT39W7E6Y" target="_blank" aria-label="Apóyanos">
           <span class="btn-caption">Apóyanos</span>
           <i class="ph-bold ph-arrow-up-right"></i>
@@ -566,16 +618,16 @@
                       </div>
                       <div class="mxd-services-cards__info width-60">
                         <div class="mxd-services-cards__tags">
-                          <span class="tag tag-default tag-outline anim-uni-in-up">Convenio UTEL</span>
-                          <span class="tag tag-default tag-outline anim-uni-in-up">Academia Virtual</span>
-                          <span class="tag tag-default tag-outline anim-uni-in-up">100% a Distancia</span>
-                          <span class="tag tag-default tag-outline anim-uni-in-up">Prácticas y Becas</span>
+                          <span class="tag tag-default tag-outline anim-uni-in-up">Servicio Social</span>
+                          <span class="tag tag-default tag-outline anim-uni-in-up">Prácticas Profesionales</span>
+                          <span class="tag tag-default tag-outline anim-uni-in-up">Capacitación Comunitaria</span>
+                          <span class="tag tag-default tag-outline anim-uni-in-up">Becas y Talleres</span>
                           <span class="tag tag-default tag-outline anim-uni-in-up">Universidades Aliadas</span>
                         </div>
-                        <p class="anim-uni-in-up">A través de convenios con UTEL Universidad, CEST e instituciones de Puebla y Tlaxcala, ofrecemos becas, talleres de capacitación técnica y liberación de servicio social presencial o a distancia.</p>
+                        <p class="anim-uni-in-up">A través de convenios con el CEST, el Instituto Cristóbal Colón, el Colegio Universitario de Puebla y diversas universidades aliadas en Puebla y Tlaxcala, ofrecemos talleres formativos, prácticas profesionales y liberación de servicio social.</p>
                       </div>
                       <div class="mxd-services-cards__image mxd-services-cards-image-3">
-                        <img class="image-1" src="img/resources/posts/post_1.jpg" alt="Convenio UTEL Universidad">
+                        <img class="image-1" src="img/resources/gallery/gallery_1.jpg" alt="Reconocimientos y Alianzas Educativas">
                         <img class="image-2" src="img/resources/posts/post_6.jpg" alt="Servicio Social en Universidades Aliadas">
                       </div>
                     </div>
@@ -620,7 +672,7 @@
                         <div class="mxd-services-cards__tags">
                           <span class="tag tag-default tag-outline-opposite anim-uni-in-up">The North Face</span>
                           <span class="tag tag-default tag-outline-opposite anim-uni-in-up">Vans</span>
-                          <span class="tag tag-default tag-outline-opposite anim-uni-in-up">UTEL</span>
+                          <span class="tag tag-default tag-outline-opposite anim-uni-in-up">Donataria Autorizada</span>
                           <span class="tag tag-default tag-outline-opposite anim-uni-in-up">Coordinación Comunitaria</span>
                         </div>
                         <p class="t-opposite anim-uni-in-up">Gracias al respaldo de aliados estratégicos y voluntarios comprometidos, llevamos esperanza a cada comunidad. ¡Súmate hoy con tu donativo o liderazgo!</p>
